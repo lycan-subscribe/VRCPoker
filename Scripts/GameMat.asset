@@ -10,18 +10,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: PokerGame
+  m_Name: GameMat
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: a77a8b653cf4e1c45ae75df6cea538b4,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: a492f974f78f69245995d1fdaf6c05f7,
     type: 2}
   udonAssembly: 
   assemblyError: 
-  sourceCsScript: {fileID: 11500000, guid: af6b121982162ab4aa720f0f4356111e, type: 3}
+  sourceCsScript: {fileID: 11500000, guid: f0111034d9386774a8fa8979f7d67046, type: 3}
   scriptVersion: 2
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 6370270507626868192
+  scriptID: -6506495351202546064
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 

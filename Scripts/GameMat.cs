@@ -6,7 +6,7 @@ using VRC.Udon;
 
 namespace VRCPoker{
 	
-	public class TexasHoldemGame : UdonSharpBehaviour
+	public class GameMat : UdonSharpBehaviour
 	{
 		
 		
@@ -15,5 +15,5 @@ namespace VRCPoker{
 			
 		}
 	}
-
+	
 }
