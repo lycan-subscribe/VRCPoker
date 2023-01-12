@@ -24,15 +24,36 @@ namespace VRCPoker{
 		public DealerMat dealerMat;
 		public GameMat[] playerMats;
 
+		public Logger logger;
+
+		#endregion
+
+
+		#region GameVariables
+
+		[UdonSynced]
+		public bool gameInProgress = false;
+
 		#endregion
 		
-		public Logger logger;
-		
+
 		void Start()
 		{
 			// Validate here? Make sure nothing is null?
 
 			logger._Log("GameState", "Initializing table...");
+		}
+
+		public bool JoinGame(){
+			VRCPlayerApi joining = Networking.LocalPlayer;
+
+			bool alreadyJoined = false;
+			foreach(GameMat gm in playerMats){
+				if(gm.player == joining)
+					alreadyJoined = true;
+			}
+
+			return !alreadyJoined && !gameInProgress;
 		}
 	}
 
