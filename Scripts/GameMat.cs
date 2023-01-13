@@ -14,7 +14,7 @@ namespace VRCPoker{
 
 
 		[UdonSynced]
-		private int _playerId = -1;
+		public int _playerId = -1;
 		public VRCPlayerApi player = null;
 
 
@@ -30,13 +30,7 @@ namespace VRCPoker{
 
 		public void ClaimMat(){
 
-			if( gameState.JoinGame() ){
-				Networking.SetOwner(Networking.LocalPlayer, gameObject);
-				_playerId = Networking.LocalPlayer.playerId;
-
-				RequestSerialization();
-				OnDeserialization();
-
+			if( gameState.JoinGame(this) ){
 				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneClaimedMat");
 			}
 
