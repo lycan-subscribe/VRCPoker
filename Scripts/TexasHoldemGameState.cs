@@ -44,6 +44,7 @@ namespace VRCPoker{
 			logger._Log("GameState", "Initializing table...");
 		}
 
+		// Triggered by GameMat
 		public bool JoinGame(){
 			VRCPlayerApi joining = Networking.LocalPlayer;
 
@@ -54,6 +55,13 @@ namespace VRCPoker{
 			}
 
 			return !alreadyJoined && !gameInProgress;
+		}
+
+		// Fix a glitch from 2022
+		public override void OnPlayerJoined(VRCPlayerApi _){
+			if (Networking.LocalPlayer.IsOwner(gameObject)){
+				RequestSerialization();
+			}
 		}
 	}
 

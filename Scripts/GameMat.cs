@@ -49,6 +49,13 @@ namespace VRCPoker{
 		private void Log(string msg){
 			gameState.logger._Log("GameMat", msg);
 		}
+
+		// Fix a glitch from 2022
+		public override void OnPlayerJoined(VRCPlayerApi _){
+			if (Networking.LocalPlayer.IsOwner(gameObject)){
+				RequestSerialization();
+			}
+		}
 	}
 	
 }

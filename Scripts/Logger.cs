@@ -17,7 +17,7 @@ namespace VRCPoker
 
 		public void Start()
 		{
-			_Log("TestLogger", "Start");
+			_Log("GameLogger", "Start");
 		}
 
 		public void _Log(string source, string log)
