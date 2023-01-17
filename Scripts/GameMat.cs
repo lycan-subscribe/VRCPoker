@@ -28,6 +28,7 @@ namespace VRCPoker{
 			}
 		}
 
+		// Called in the lobby before the game starts, when someone wants the mat
 		public void ClaimMat(){
 
 			if( gameState.JoinGame(this) ){
@@ -38,6 +39,14 @@ namespace VRCPoker{
 
 		public void SomeoneClaimedMat(){
 			Log(player.displayName + " joined the game.");
+		}
+
+		public void Fold(){
+			Log("Folded");
+		}
+
+		public void CallBetRaise(){
+			Log("Called");
 		}
 
 		private void Log(string msg){
