@@ -19,12 +19,12 @@ namespace VRCPoker {
 			if( gameState.StartGame() ){
 				Networking.SetOwner(Networking.LocalPlayer, gameObject);
 				RequestSerialization();
-				OnDeserialization();
+				//OnDeserialization();
 			}
 		}
 
 		public override void OnDeserialization(){
-			Log("[DEBUG] deserializing dealers mat");
+			Log("[DEBUG] Deserialization");
 			if( gameState.CanStart() ){
 				startButton.gameObject.SetActive(true);
 			}

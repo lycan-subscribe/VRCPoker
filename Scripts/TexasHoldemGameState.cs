@@ -8,20 +8,25 @@ namespace VRCPoker{
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class TexasHoldemGameState : UdonSharpBehaviour
 	{
-		#region Prefabs
 
-		/*
-         * Prefabs
-         */
+		#region Settings
+
+		//public int maxRounds = 9;
+
+		public DealerMat dealerMat;
+		public GameMat[] playerMats;
+		public const int startingBet = 5;
+
+		#endregion
+
+
+		#region Builtin
 
 		public MeshRenderer chip1;
 		public MeshRenderer chip5;
 		public MeshRenderer chip25;
 		public MeshRenderer chip50;
 		public MeshRenderer chip100;
-		
-		public DealerMat dealerMat;
-		public GameMat[] playerMats;
 
 		public Logger logger;
 
@@ -35,7 +40,11 @@ namespace VRCPoker{
 		[UdonSynced]
 		public int roundNumber = 0;
 		[UdonSynced]
-		public int currentPlayer = 0;
+		public int currentPlayer = -1; // Index of playerMats whose turn it is
+		[UdonSynced]
+		public int currentBet = 0;
+		[UdonSynced]
+		public bool[] playerInRound; // Will be the same size as playerMats
 
 		#endregion
 		
@@ -44,12 +53,99 @@ namespace VRCPoker{
 		{
 			// Validate here? Make sure nothing is null?
 
-			logger._Log("GameState", "Initializing table...");
+			Log("Initializing table...");
+			playerInRound = new bool[playerMats.Length];
 		}
 
 		public override void OnDeserialization(){
-
+			Log("[DEBUG] Game State Deserialization");
 		}
+
+
+
+		// Triggered by DealerMat
+		public bool StartGame(){
+			if( CanStart() ){
+				gameInProgress = true;
+				roundNumber = -1;
+
+				for(int i=0; i<playerMats.Length; i++){
+					if( playerMats[i].player != null ){
+						playerInRound[i] = true;
+					}
+					else{
+						playerInRound[i] = false;
+					}
+				}
+
+				NextRound();
+				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
+
+				return true;
+			}
+
+			return false;
+		}
+
+		// Someone started the game
+		public void SomeoneStartedGame(){
+			Log("Starting game...");
+		}
+
+		private void NextRound(){
+			roundNumber += 1;
+			currentBet = startingBet;
+			
+			currentPlayer = -1; // Next player is 0
+
+			NextPlayer();
+		}
+
+		private void NextPlayer(){
+			currentPlayer += 1;
+
+			if( currentPlayer >= playerMats.Length ){
+				NextRound();
+				return;
+			}
+			else if( playerMats[currentPlayer].player == null ){ // Check if mat unclaimed, in case
+				NextPlayer();
+				return;
+			}
+			else if( playerInRound[currentPlayer] == false){ // Player folded
+				NextPlayer();
+				return;
+			}
+
+			Networking.SetOwner(Networking.LocalPlayer, gameObject);
+			RequestSerialization();
+			OnDeserialization();
+
+			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
+			dealerMat.RequestSerialization();
+			dealerMat.OnDeserialization();
+
+			foreach(GameMat mat in playerMats){
+				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
+				mat.RequestSerialization();
+				mat.OnDeserialization();
+			}
+		}
+
+
+		// Checked by DealerMat
+		public bool CanStart(){
+
+			if( gameInProgress ){
+				return false;
+			}
+			else if( NumPlayers() >= 2 ){
+				return true;
+			}
+
+			return false;
+		}
+
 
 		// Triggered by GameMat
 		public bool JoinGame(GameMat mat){
@@ -73,38 +169,20 @@ namespace VRCPoker{
 			return false;
 		}
 
-		// Triggered by DealerMat
-		public bool StartGame(){
-			if( CanStart() ){
-				gameInProgress = true;
-				roundNumber = 0;
-				currentPlayer = 0;
+		// Triggered by GameMat
+		public bool Fold(GameMat mat){
+			// assert mat == playerMats[currentPlayer]
+			// assert gameInProgress
 
-				Networking.SetOwner(Networking.LocalPlayer, gameObject);
-				RequestSerialization();
-				OnDeserialization();
-				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
-
-				return true;
-			}
-
-			return false;
+			playerInRound[currentPlayer] = false;
+			NextPlayer();
+			return true;
 		}
 
-		// Someone started the game
-		public void SomeoneStartedGame(){
-			Log("Starting game...");
-		}
-
-		// Checked by DealerMat
-		public bool CanStart(){
-
-			if( gameInProgress ){
-				return false;
-			}
-			else if( NumPlayers() >= 2 ){
-				return true;
-			}
+		// Triggered by GameMat
+		public bool CallBetRaise(GameMat mat, int amount){
+			// mat == playerMats[currentPlayer]
+			// assert gameInProgress
 
 			return false;
 		}
@@ -122,7 +200,9 @@ namespace VRCPoker{
 			return numJoined;
 		}
 
-		private bool InGame(VRCPlayerApi player){
+		public bool InGame(VRCPlayerApi player){
+			if(player == null) return false; // Otherwise a null player might return true
+
 			bool alreadyJoined = false;
 			foreach(GameMat gm in playerMats){
 				if(gm.player == player)
@@ -131,6 +211,16 @@ namespace VRCPoker{
 
 			return alreadyJoined;
 		}
+
+		private GameMat MyMat(){
+			foreach(GameMat gm in playerMats){
+				if(gm.player == Networking.LocalPlayer){
+					return gm;
+				}
+			}
+			return null;
+		}
+
 
 		private void Log(string msg){
 			logger._Log("GameCode", msg);
