@@ -62,6 +62,21 @@ namespace VRCPoker{
 
 				if( StartGame() ){
                     SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
+                    
+                    Networking.SetOwner(Networking.LocalPlayer, gameObject);
+                    RequestSerialization();
+                    OnDeserialization();
+
+                    Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
+                    dealerMat.RequestSerialization();
+                    dealerMat.OnDeserialization();
+
+                    foreach(GameMat mat in playerMats){
+                        Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
+                        mat.RequestSerialization();
+                        mat.OnDeserialization();
+                    }
+                    
                     return true;
                 }
 			}
@@ -124,10 +139,10 @@ namespace VRCPoker{
 			return false;
         }
 
-        public void EndGame(){
+        public void EndGame(int winner){
             gameInProgress = false;
+            currentPlayer = winner;
 
-            Networking.SetOwner(Networking.LocalPlayer, gameObject);
 			RequestSerialization();
 			OnDeserialization();
 
@@ -141,11 +156,11 @@ namespace VRCPoker{
 				mat.OnDeserialization();
 			}
 
-
+            SendCustomNetworkEvent(NetworkEventTarget.All, "PlayerWon");
         }
 
         public void PlayerWon(){
-            SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
+            Log(playerMats[currentPlayer].player.displayName + " won the game!");
         }
 
 

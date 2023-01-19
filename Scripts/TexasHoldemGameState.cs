@@ -8,7 +8,7 @@ namespace VRCPoker{
 	// GAME LOGIC
 
 	// All functions in this class are run on the game master's client (player who hits start)
-	// Players are represented here by an integer, where their index is the gameMat
+	// Players are represented here by an integer, where their index is of playerMats
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class TexasHoldemGameState : PokerGameState
 	{
@@ -68,27 +68,9 @@ namespace VRCPoker{
 				NextRound();
 				return;
 			}
-			else if( playerMats[currentPlayer].player == null ){ // Check if mat unclaimed, in case
-				NextPlayer();
-				return;
-			}
 			else if( playerInGame[currentPlayer] == false){ // Player folded
 				NextPlayer();
 				return;
-			}
-
-			Networking.SetOwner(Networking.LocalPlayer, gameObject);
-			RequestSerialization();
-			OnDeserialization();
-
-			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-			dealerMat.RequestSerialization();
-			dealerMat.OnDeserialization();
-
-			foreach(GameMat mat in playerMats){
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat.RequestSerialization();
-				mat.OnDeserialization();
 			}
 		}
 
@@ -97,7 +79,11 @@ namespace VRCPoker{
 
 			if( NumPlayersInGame() == 1 ){
 				// Only one person left, so they win by default
-				
+				for(int i=0; i<playerMats.Length; i++){
+					if(playerInGame[i]){
+						EndGame(i);
+					}
+				}
 			}
 			else{
 				NextPlayer();
