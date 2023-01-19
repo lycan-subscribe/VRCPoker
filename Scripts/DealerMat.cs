@@ -8,7 +8,7 @@ namespace VRCPoker {
 	
 	public class DealerMat : UdonSharpBehaviour
 	{
-		public TexasHoldemGameState gameState;
+		public PokerGameState gameState;
 		public StartButton startButton;
 		
 		void Start(){
@@ -16,7 +16,7 @@ namespace VRCPoker {
 		}
 
 		public void StartGame(){
-			if( gameState.StartGame() ){
+			if( gameState.TriggerStartGame() ){
 				Networking.SetOwner(Networking.LocalPlayer, gameObject);
 				RequestSerialization();
 				//OnDeserialization();

@@ -4,100 +4,60 @@ using VRC.SDKBase;
 using VRC.Udon.Common.Interfaces;
 
 namespace VRCPoker{
-	
+
+	// GAME LOGIC
+
+	// All functions in this class are run on the game master's client (player who hits start)
+	// Players are represented here by an integer, where their index is the gameMat
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
-	public class TexasHoldemGameState : UdonSharpBehaviour
+	public class TexasHoldemGameState : PokerGameState
 	{
 
 		#region Settings
 
-		//public int maxRounds = 9;
-
-		public DealerMat dealerMat;
-		public GameMat[] playerMats;
 		public const int startingBet = 5;
 
 		#endregion
 
 
-		#region Builtin
-
-		public MeshRenderer chip1;
-		public MeshRenderer chip5;
-		public MeshRenderer chip25;
-		public MeshRenderer chip50;
-		public MeshRenderer chip100;
-
-		public Logger logger;
-
-		#endregion
-
-
 		#region GameVariables
-
+		
 		[UdonSynced]
-		public bool gameInProgress = false;
+		public bool[] playerInGame; // Size of gameMat, who is playing & hasn't folded?
 		[UdonSynced]
 		public int roundNumber = 0;
 		[UdonSynced]
-		public int currentPlayer = -1; // Index of playerMats whose turn it is
-		[UdonSynced]
 		public int currentBet = 0;
-		[UdonSynced]
-		public bool[] playerInRound; // Will be the same size as playerMats
 
 		#endregion
-		
 
-		void Start()
-		{
-			// Validate here? Make sure nothing is null?
-
+		void Start(){
 			Log("Initializing table...");
-			playerInRound = new bool[playerMats.Length];
-		}
-
-		public override void OnDeserialization(){
-			Log("[DEBUG] Game State Deserialization");
+			playerInGame = new bool[playerMats.Length];
 		}
 
 
+		protected override bool StartGame(){
+			roundNumber = -1;
 
-		// Triggered by DealerMat
-		public bool StartGame(){
-			if( CanStart() ){
-				gameInProgress = true;
-				roundNumber = -1;
-
-				for(int i=0; i<playerMats.Length; i++){
-					if( playerMats[i].player != null ){
-						playerInRound[i] = true;
-					}
-					else{
-						playerInRound[i] = false;
-					}
+			for(int i=0; i<playerMats.Length; i++){
+				if( playerMats[i].player != null ){
+					playerInGame[i] = true;
 				}
-
-				NextRound();
-				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
-
-				return true;
+				else{
+					playerInGame[i] = false;
+				}
 			}
 
-			return false;
-		}
+			NextRound();
 
-		// Someone started the game
-		public void SomeoneStartedGame(){
-			Log("Starting game...");
+			return true;
 		}
 
 		private void NextRound(){
 			roundNumber += 1;
-			currentBet = startingBet;
-			
-			currentPlayer = -1; // Next player is 0
 
+			currentPlayer = -1; // Next player is 0
 			NextPlayer();
 		}
 
@@ -112,7 +72,7 @@ namespace VRCPoker{
 				NextPlayer();
 				return;
 			}
-			else if( playerInRound[currentPlayer] == false){ // Player folded
+			else if( playerInGame[currentPlayer] == false){ // Player folded
 				NextPlayer();
 				return;
 			}
@@ -132,106 +92,39 @@ namespace VRCPoker{
 			}
 		}
 
+		protected override bool Fold(){
+			playerInGame[currentPlayer] = false;
 
-		// Checked by DealerMat
-		public bool CanStart(){
-
-			if( gameInProgress ){
-				return false;
+			if( NumPlayersInGame() == 1 ){
+				// Only one person left, so they win by default
+				
 			}
-			else if( NumPlayers() >= 2 ){
-				return true;
-			}
-
-			return false;
-		}
-
-
-		// Triggered by GameMat
-		public bool JoinGame(GameMat mat){
-			bool alreadyJoined = InGame(Networking.LocalPlayer);
-
-			if(!alreadyJoined && !gameInProgress){
-				// Claim the mat
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat._playerId = Networking.LocalPlayer.playerId;
-				mat.RequestSerialization();
-				mat.OnDeserialization();
-
-				// Refresh the start button in case people can play now
-				Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-				dealerMat.RequestSerialization();
-				dealerMat.OnDeserialization();
-
-				return true;
+			else{
+				NextPlayer();
 			}
 
-			return false;
-		}
-
-		// Triggered by GameMat
-		public bool Fold(GameMat mat){
-			// assert mat == playerMats[currentPlayer]
-			// assert gameInProgress
-
-			playerInRound[currentPlayer] = false;
-			NextPlayer();
 			return true;
 		}
 
-		// Triggered by GameMat
-		public bool CallBetRaise(GameMat mat, int amount){
-			// mat == playerMats[currentPlayer]
-			// assert gameInProgress
-
+		protected override bool CallBetRaise(int amount){
 			return false;
 		}
 
 
-		// Gamemats are used as the player array, check them
-		private int NumPlayers(){
-			int numJoined = 0;
-			
-			foreach(GameMat gm in playerMats){
-				if(gm.player != null)
-					numJoined ++;
+		// Utility
+
+		// How many haven't folded yet
+		private int NumPlayersInGame(){
+			int numPlaying = 0;
+
+			foreach(bool p in playerInGame){
+				if(p) numPlaying++;
 			}
 
-			return numJoined;
+			return numPlaying;
 		}
 
-		public bool InGame(VRCPlayerApi player){
-			if(player == null) return false; // Otherwise a null player might return true
-
-			bool alreadyJoined = false;
-			foreach(GameMat gm in playerMats){
-				if(gm.player == player)
-					alreadyJoined = true;
-			}
-
-			return alreadyJoined;
-		}
-
-		private GameMat MyMat(){
-			foreach(GameMat gm in playerMats){
-				if(gm.player == Networking.LocalPlayer){
-					return gm;
-				}
-			}
-			return null;
-		}
-
-
-		private void Log(string msg){
-			logger._Log("GameCode", msg);
-		}
-
-		// Fix a glitch from 2022
-		public override void OnPlayerJoined(VRCPlayerApi _){
-			if (Networking.LocalPlayer.IsOwner(gameObject)){
-				RequestSerialization();
-			}
-		}
+		
 	}
 
 }

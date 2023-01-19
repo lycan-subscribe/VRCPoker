@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.TexasHoldemGameState, Assembly-CSharp
+      Data: VRCPoker.PokerGameState, Assembly-CSharp
     - Name: 
       Entry: 8
       Data: 

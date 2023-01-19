@@ -11,7 +11,7 @@ namespace VRCPoker{
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class GameMat : UdonSharpBehaviour
 	{
-		public TexasHoldemGameState gameState;
+		public PokerGameState gameState;
 		public JoinButton joinButton;
 		public Canvas turnUI;
 		public TMP_Text callText;
@@ -71,7 +71,7 @@ namespace VRCPoker{
 
 		// Called by the turn UI
 		public void Fold(){
-			if( gameState.Fold(this) ){
+			if( gameState.TriggerFold(this) ){
 				RequestSerialization();
 				OnDeserialization();
 			}
