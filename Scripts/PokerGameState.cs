@@ -62,20 +62,10 @@ namespace VRCPoker{
 
 				if( StartGame() ){
                     SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
+					currentPlayer = -1;
+					TriggerNextPlayer();
                     
-                    Networking.SetOwner(Networking.LocalPlayer, gameObject);
-                    RequestSerialization();
-                    OnDeserialization();
-
-                    Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-                    dealerMat.RequestSerialization();
-                    dealerMat.OnDeserialization();
-
-                    foreach(GameMat mat in playerMats){
-                        Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-                        mat.RequestSerialization();
-                        mat.OnDeserialization();
-                    }
+                    SerializeAll();
                     
                     return true;
                 }
@@ -143,18 +133,7 @@ namespace VRCPoker{
             gameInProgress = false;
             currentPlayer = winner;
 
-			RequestSerialization();
-			OnDeserialization();
-
-			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-			dealerMat.RequestSerialization();
-			dealerMat.OnDeserialization();
-
-			foreach(GameMat mat in playerMats){
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat.RequestSerialization();
-				mat.OnDeserialization();
-			}
+			SerializeAll();
 
             SendCustomNetworkEvent(NetworkEventTarget.All, "PlayerWon");
         }
@@ -162,6 +141,27 @@ namespace VRCPoker{
         public void PlayerWon(){
             Log(playerMats[currentPlayer].player.displayName + " won the game!");
         }
+
+		public void TriggerNextPlayer(){
+			currentPlayer += 1;
+			
+			if( currentPlayer >= playerMats.Length ){
+				RoundFinished();
+				currentPlayer = 0;
+			}
+
+			// Find the next gameMat with a player
+			while( currentPlayer < playerMats.Length && playerMats[currentPlayer].player == null ){
+				currentPlayer++;
+			}
+			// assert currentPlayer < playerMats.Length
+
+			NextPlayer();
+
+			SerializeAll();
+		}
+		protected abstract void RoundFinished(); // Called before NextPlayer at the end of one circle
+		protected abstract void NextPlayer();
 
 
         /*
@@ -199,6 +199,23 @@ namespace VRCPoker{
 				}
 			}
 			return null;
+		}
+
+		// Refresh game state, dealer mat, and all game mats for every player
+		private void SerializeAll(){
+			Networking.SetOwner(Networking.LocalPlayer, gameObject);
+			RequestSerialization();
+			OnDeserialization();
+
+			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
+			dealerMat.RequestSerialization();
+			dealerMat.OnDeserialization();
+
+			foreach(GameMat mat in playerMats){
+				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
+				mat.RequestSerialization();
+				mat.OnDeserialization();
+			}
 		}
 
         protected void Log(string msg){

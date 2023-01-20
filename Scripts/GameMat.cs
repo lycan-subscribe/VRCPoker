@@ -72,14 +72,15 @@ namespace VRCPoker{
 		// Called by the turn UI
 		public void Fold(){
 			if( gameState.TriggerFold(this) ){
-				RequestSerialization();
-				OnDeserialization();
+				// Unnecessary for now since the game state takes it over and serializes
+				/*RequestSerialization();
+				OnDeserialization();*/
 			}
 		}
 
 		// Called by the turn UI
 		public void CallBetRaise(){
-			Log("Called");
+			gameState.TriggerCallBetRaise(this, 0); // Todo
 		}
 
 		private void Log(string msg){

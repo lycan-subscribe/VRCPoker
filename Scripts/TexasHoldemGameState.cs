@@ -7,7 +7,8 @@ namespace VRCPoker{
 
 	// GAME LOGIC
 
-	// All functions in this class are run on the game master's client (player who hits start)
+	// All functions in this class are guaranteed to be run by the object network owner.
+	//   and will be synced automatically
 	// Players are represented here by an integer, where their index is of playerMats
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class TexasHoldemGameState : PokerGameState
@@ -38,7 +39,7 @@ namespace VRCPoker{
 
 
 		protected override bool StartGame(){
-			roundNumber = -1;
+			roundNumber = 0;
 
 			for(int i=0; i<playerMats.Length; i++){
 				if( playerMats[i].player != null ){
@@ -49,28 +50,16 @@ namespace VRCPoker{
 				}
 			}
 
-			NextRound();
-
 			return true;
 		}
 
-		private void NextRound(){
-			roundNumber += 1;
-
-			currentPlayer = -1; // Next player is 0
-			NextPlayer();
+		protected override void RoundFinished(){
+			roundNumber++;
 		}
 
-		private void NextPlayer(){
-			currentPlayer += 1;
-
-			if( currentPlayer >= playerMats.Length ){
-				NextRound();
-				return;
-			}
-			else if( playerInGame[currentPlayer] == false){ // Player folded
-				NextPlayer();
-				return;
+		protected override void NextPlayer(){
+			if( playerInGame[currentPlayer] == false ){
+				TriggerNextPlayer();
 			}
 		}
 
@@ -86,13 +75,15 @@ namespace VRCPoker{
 				}
 			}
 			else{
-				NextPlayer();
+				TriggerNextPlayer();
 			}
 
 			return true;
 		}
 
 		protected override bool CallBetRaise(int amount){
+			TriggerNextPlayer(); // As a test
+
 			return false;
 		}
 
