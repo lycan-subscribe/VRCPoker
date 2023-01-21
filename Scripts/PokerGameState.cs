@@ -63,9 +63,7 @@ namespace VRCPoker{
 				if( StartGame() ){
                     SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
 					currentPlayer = -1;
-					TriggerNextPlayer();
-                    
-                    SerializeAll();
+					TriggerNextPlayer(); // Serializes
                     
                     return true;
                 }
@@ -143,18 +141,26 @@ namespace VRCPoker{
         }
 
 		public void TriggerNextPlayer(){
-			currentPlayer += 1;
+			Log("[DEBUG] Next player...");
+			currentPlayer++;
+
+			// Find the next gameMat with a player
+			while( currentPlayer < playerMats.Length && playerMats[currentPlayer].player == null ){
+				currentPlayer++;
+			}
 			
 			if( currentPlayer >= playerMats.Length ){
 				RoundFinished();
 				currentPlayer = 0;
 			}
 
-			// Find the next gameMat with a player
+			// Find the next gameMat with a player again
 			while( currentPlayer < playerMats.Length && playerMats[currentPlayer].player == null ){
 				currentPlayer++;
 			}
-			// assert currentPlayer < playerMats.Length
+			//assert currentPlayer < playerMats.Length
+
+			Log("[DEBUG] currentPlayer: " + currentPlayer);
 
 			NextPlayer();
 

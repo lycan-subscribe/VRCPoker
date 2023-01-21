@@ -55,6 +55,8 @@ namespace VRCPoker{
 
 		protected override void RoundFinished(){
 			roundNumber++;
+
+			Log("[DEBUG] Round finished. Starting round " + roundNumber);
 		}
 
 		protected override void NextPlayer(){
@@ -64,6 +66,8 @@ namespace VRCPoker{
 		}
 
 		protected override bool Fold(){
+			Log("[DEBUG] folded");
+
 			playerInGame[currentPlayer] = false;
 
 			if( NumPlayersInGame() == 1 ){
@@ -82,9 +86,11 @@ namespace VRCPoker{
 		}
 
 		protected override bool CallBetRaise(int amount){
+			Log("[DEBUG] Called");
+
 			TriggerNextPlayer(); // As a test
 
-			return false;
+			return true;
 		}
 
 
