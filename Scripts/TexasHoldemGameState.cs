@@ -61,12 +61,15 @@ namespace VRCPoker{
 
 		protected override void NextPlayer(){
 			if( playerInGame[currentPlayer] == false ){
-				TriggerNextPlayer();
+				TriggerNextPlayer(); // Recursive
+				return;
 			}
+
+			// currentPlayer turn
 		}
 
 		protected override bool Fold(){
-			Log("[DEBUG] folded");
+			//Log("[DEBUG] folded");
 
 			playerInGame[currentPlayer] = false;
 
@@ -86,7 +89,7 @@ namespace VRCPoker{
 		}
 
 		protected override bool CallBetRaise(int amount){
-			Log("[DEBUG] Called");
+			//Log("[DEBUG] Called");
 
 			TriggerNextPlayer(); // As a test
 

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 6065a16142b7ddb4fb4cff4954820266
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - _udonSharpBackingUdonBehaviour: {instanceID: 0}
+  - mysteryCard: {fileID: 229376486285368641, guid: 4356342e4f4d023488ec65ccfbc80774,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

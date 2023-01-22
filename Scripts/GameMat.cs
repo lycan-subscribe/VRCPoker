@@ -14,7 +14,9 @@ namespace VRCPoker{
 		public PokerGameState gameState;
 		public JoinButton joinButton;
 		public Canvas turnUI;
+		public TMP_Text foldText;
 		public TMP_Text callText;
+		public CardHand hand;
 
 
 		[UdonSynced]

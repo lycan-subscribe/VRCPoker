@@ -141,7 +141,6 @@ namespace VRCPoker{
         }
 
 		public void TriggerNextPlayer(){
-			Log("[DEBUG] Next player...");
 			currentPlayer++;
 
 			// Find the next gameMat with a player
@@ -159,8 +158,6 @@ namespace VRCPoker{
 				currentPlayer++;
 			}
 			//assert currentPlayer < playerMats.Length
-
-			Log("[DEBUG] currentPlayer: " + currentPlayer);
 
 			NextPlayer();
 

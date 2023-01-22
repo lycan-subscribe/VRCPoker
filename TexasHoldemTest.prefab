@@ -186,18 +186,22 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _udonSharpBackingUdonBehaviour: {fileID: 1210267813050961553}
-  chip1: {fileID: 8993320147028072201}
-  chip5: {fileID: 8302429426973261101}
-  chip25: {fileID: 8280535766999688008}
-  chip50: {fileID: 2262913079082950731}
-  chip100: {fileID: 8118833199099808218}
   dealerMat: {fileID: 8123011315185102286}
   playerMats:
   - {fileID: 1210267811914815928}
   - {fileID: 5288240643360578891}
   - {fileID: 5288240643013659464}
+  chip1: {fileID: 8993320147028072201}
+  chip5: {fileID: 8302429426973261101}
+  chip25: {fileID: 8280535766999688008}
+  chip50: {fileID: 2262913079082950731}
+  chip100: {fileID: 8118833199099808218}
   logger: {fileID: 8703574164185961441}
   gameInProgress: 0
+  currentPlayer: -1
+  playerInGame: 
+  roundNumber: 0
+  currentBet: 0
 --- !u!114 &1210267813050961553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231,6 +235,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1210267811544830215}
     m_Modifications:
+    - target: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
     - target: {fileID: 3599213213646362451, guid: 7ec968c79cf527641940b5a416e827cb,
         type: 3}
       propertyPath: serializedPublicVariablesBytesString
@@ -369,7 +379,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 983ef880628d3f9438a47b15fc441261,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.103
+      value: -0.344
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 983ef880628d3f9438a47b15fc441261,
         type: 3}
@@ -566,6 +576,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1210267811544830215}
     m_Modifications:
+    - target: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
     - target: {fileID: 3599213213646362451, guid: 7ec968c79cf527641940b5a416e827cb,
         type: 3}
       propertyPath: serializedPublicVariablesBytesString
@@ -844,6 +860,12 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1210267811544830215}
     m_Modifications:
+    - target: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 464053426896652865, guid: 7ec968c79cf527641940b5a416e827cb,
+        type: 3}
     - target: {fileID: 3599213213646362451, guid: 7ec968c79cf527641940b5a416e827cb,
         type: 3}
       propertyPath: serializedPublicVariablesBytesString
@@ -1047,6 +1069,12 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6181848148653329470, guid: 4658a1b216cc18f4fa9bedcc1a7d1f46,
+        type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 6181848148653329470, guid: 4658a1b216cc18f4fa9bedcc1a7d1f46,
+        type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4658a1b216cc18f4fa9bedcc1a7d1f46, type: 3}
 --- !u!4 &4886697263360474086 stripped
@@ -1092,7 +1120,7 @@ PrefabInstance:
     - target: {fileID: -8679921383154817045, guid: 4356342e4f4d023488ec65ccfbc80774,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.65199995
+      value: 0.879
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 4356342e4f4d023488ec65ccfbc80774,
         type: 3}
