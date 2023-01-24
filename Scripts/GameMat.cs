@@ -23,6 +23,9 @@ namespace VRCPoker{
 		public int _playerId = -1;
 		public VRCPlayerApi player = null;
 
+		[UdonSynced]
+		public int callBetRaiseAmt = 0;
+
 
 		public override void OnDeserialization(){
 			player = VRCPlayerApi.GetPlayerById(_playerId); // Throws errors that can't be caught with udon??
@@ -73,16 +76,14 @@ namespace VRCPoker{
 
 		// Called by the turn UI
 		public void Fold(){
-			if( gameState.TriggerFold(this) ){
-				// Unnecessary for now since the game state takes it over and serializes
-				/*RequestSerialization();
-				OnDeserialization();*/
-			}
+			gameState.SendCustomNetworkEvent(NetworkEventTarget.All, "TriggerFold");
 		}
 
 		// Called by the turn UI
 		public void CallBetRaise(){
-			gameState.TriggerCallBetRaise(this, 0); // Todo
+			RequestSerialization(); // for callBetRaiseAmt
+
+			gameState.SendCustomNetworkEvent(NetworkEventTarget.All, "TriggerCallBetRaise");
 		}
 
 		private void Log(string msg){

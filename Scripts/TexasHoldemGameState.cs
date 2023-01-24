@@ -7,8 +7,8 @@ namespace VRCPoker{
 
 	// GAME LOGIC
 
-	// All functions in this class are guaranteed to be run by the object network owner.
-	//   and will be synced automatically
+	// All functions in this class are guaranteed to be run by the game owner (person who
+	//   pressed start) and will be synced automatically
 	// Players are represented here by an integer, where their index is of playerMats
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class TexasHoldemGameState : PokerGameState

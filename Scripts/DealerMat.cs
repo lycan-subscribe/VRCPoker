@@ -10,6 +10,7 @@ namespace VRCPoker {
 	{
 		public PokerGameState gameState;
 		public StartButton startButton;
+		public CardHand cards;
 		
 		void Start(){
 			OnDeserialization();
@@ -18,7 +19,7 @@ namespace VRCPoker {
 		public void StartGame(){
 			if( gameState.TriggerStartGame() ){
 				Networking.SetOwner(Networking.LocalPlayer, gameObject);
-				RequestSerialization();
+				//RequestSerialization();
 				//OnDeserialization();
 			}
 		}

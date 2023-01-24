@@ -38,6 +38,12 @@ namespace VRCPoker{
         [UdonSynced]
 		public int currentPlayer = -1; // Index of playerMats whose turn it is
 
+		// Deck variables
+		// e.g. the 0th card in the deck has suit deckSuits[0] and rank deckRanks[0]
+		Suit[] deckSuits = new Suit[52];
+		Rank[] deckRanks = new Rank[52];
+		int nextToDraw = 51; // Draw starting from the end
+
         #endregion
 
 
@@ -55,18 +61,24 @@ namespace VRCPoker{
          *  EVENTS TRIGGERED BY UI
          */
 
-        // Triggered by Dealer Mat
+        // Triggered directly by Dealer Mat
         public bool TriggerStartGame(){
             if( CanStart() ){
-				gameInProgress = true;
+				if( Networking.IsOwner(gameObject) ){
+					gameInProgress = true;
 
-				if( StartGame() ){
-                    SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
-					currentPlayer = -1;
-					TriggerNextPlayer(); // Serializes
-                    
-                    return true;
-                }
+					if( StartGame() ){
+						SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
+						currentPlayer = -1;
+
+						// Person who presses the button takes over the game
+						Networking.SetOwner(Networking.LocalPlayer, gameObject);
+						Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
+						TriggerNextPlayer(); // Serializes
+						
+						return true;
+					}
+				}
 			}
 
 			return false;
@@ -76,36 +88,7 @@ namespace VRCPoker{
 			Log("Starting game...");
 		}
 
-        // Checked by DealerMat
-		public bool CanStart(){
-
-			if( gameInProgress ){
-				return false;
-			}
-			else if( NumPlayers() >= 2 ){
-				return true;
-			}
-
-			return false;
-		}
-
-        // Triggered by GameMat Turn UI
-        public bool TriggerFold(GameMat mat){
-            // assert mat == playerMats[currentPlayer]
-			// assert gameInProgress
-
-            return Fold();
-        }
-        protected abstract bool Fold();
-        public bool TriggerCallBetRaise(GameMat mat, int amt){
-            // mat == playerMats[currentPlayer]
-			// assert gameInProgress
-
-            return CallBetRaise(amt);
-        }
-        protected abstract bool CallBetRaise(int amt);
-
-        // Triggered by GameMat
+		// Triggered directly by GameMat
         public bool JoinGame(GameMat mat){
             bool alreadyJoined = InGame(Networking.LocalPlayer);
 
@@ -127,12 +110,49 @@ namespace VRCPoker{
 			return false;
         }
 
-        public void EndGame(int winner){
+        // Checked by DealerMat
+		public bool CanStart(){
+
+			if( gameInProgress ){
+				return false;
+			}
+			else if( NumPlayers() >= 2 ){
+				return true;
+			}
+
+			return false;
+		}
+
+
+        // Triggered by GameMat Turn UI
+        public void TriggerFold(){
+			// assert gameInProgress
+
+			if( Networking.IsOwner(gameObject) )
+            	Fold();
+        }
+        protected abstract bool Fold();
+
+		// Triggered by GameMat Turn UI
+        public void TriggerCallBetRaise(){
+			// assert gameInProgress
+
+			if( Networking.IsOwner(gameObject) )
+            	CallBetRaise( playerMats[currentPlayer].callBetRaiseAmt );
+        }
+        protected abstract bool CallBetRaise(int amt);
+
+        
+
+        protected void EndGame(int winner){
             gameInProgress = false;
             currentPlayer = winner;
 
-			SerializeAll();
-
+			RequestSerialization();
+			OnDeserialization();
+			dealerMat.RequestSerialization();
+			dealerMat.OnDeserialization();
+			SendCustomNetworkEvent(NetworkEventTarget.All, "TurnEnded");
             SendCustomNetworkEvent(NetworkEventTarget.All, "PlayerWon");
         }
 
@@ -140,7 +160,10 @@ namespace VRCPoker{
             Log(playerMats[currentPlayer].player.displayName + " won the game!");
         }
 
-		public void TriggerNextPlayer(){
+		// Trigger 
+		protected void TriggerNextPlayer(){
+			// assert Networking.IsOwner(gameObject)
+
 			currentPlayer++;
 
 			// Find the next gameMat with a player
@@ -161,10 +184,21 @@ namespace VRCPoker{
 
 			NextPlayer();
 
-			SerializeAll();
+			RequestSerialization();
+			OnDeserialization();
+			dealerMat.RequestSerialization();
+			dealerMat.OnDeserialization();
+			SendCustomNetworkEvent(NetworkEventTarget.All, "TurnEnded");
 		}
 		protected abstract void RoundFinished(); // Called before NextPlayer at the end of one circle
 		protected abstract void NextPlayer();
+		public void TurnEnded(){
+			Log("[DEBUG] turn ended");
+			GameMat mat = MyMat();
+			if(mat != null){
+				mat.OnDeserialization();
+			}
+		}
 
 
         /*
@@ -204,25 +238,32 @@ namespace VRCPoker{
 			return null;
 		}
 
+		// Compare all hands with dealer's hand using traditional poker rules
+		// Returns the index of the player in playerMats
+		protected int GetWinningHand(){
+
+			return CompareHands.GetWinner(ref dealerMat.cards, ref playerMats);
+		}
+
 		// Refresh game state, dealer mat, and all game mats for every player
-		private void SerializeAll(){
-			Networking.SetOwner(Networking.LocalPlayer, gameObject);
+		/*private void SerializeAll(){
 			RequestSerialization();
 			OnDeserialization();
-
-			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
 			dealerMat.RequestSerialization();
 			dealerMat.OnDeserialization();
-
-			foreach(GameMat mat in playerMats){
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat.RequestSerialization();
-				mat.OnDeserialization();
-			}
-		}
+			SendCustomNetworkEvent(NetworkEventTarget.All, "TurnEnded");
+		}*/
 
         protected void Log(string msg){
 			logger._Log("GameCode", msg);
+		}
+
+		public override void OnOwnershipTransferred(VRCPlayerApi p){
+			Log(p.displayName + " became the host.");
+		}
+
+		public override void OnPlayerLeft(VRCPlayerApi p){
+			
 		}
 
 		// Fix a glitch from 2022
