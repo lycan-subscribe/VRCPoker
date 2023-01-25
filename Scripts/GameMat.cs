@@ -18,45 +18,8 @@ namespace VRCPoker{
 		public TMP_Text callText;
 		public CardHand hand;
 
-
-		[UdonSynced]
-		public int _playerId = -1;
 		public VRCPlayerApi player = null;
 
-
-		public override void OnDeserialization(){
-			player = VRCPlayerApi.GetPlayerById(_playerId); // Throws errors that can't be caught with udon??
-
-			if( player == null ){ // Noone has claimed this mat
-				Log("[DEBUG] Deserializing empty mat");
-				joinButton.gameObject.SetActive(true); // Join if you want
-			}
-			else{ // Someone claimed this mat
-				Log("[DEBUG] Deserializing mat owned by " + player.displayName);
-				joinButton.gameObject.SetActive(false); // You can't join
-			}
-
-			if( gameState.gameInProgress ){
-
-				if( gameState.playerMats[gameState.currentPlayer] == this ){ // This mat's turn
-					if( Networking.LocalPlayer == player ){ // You own the mat
-						// Your turn
-						Log("[DEBUG] your turn - player " + gameState.currentPlayer);
-						turnUI.gameObject.SetActive(true);
-					}
-					else { // Someone else's mat
-						turnUI.gameObject.SetActive(false);
-					}
-					
-				}
-				else { // Not this mat's turn
-					turnUI.gameObject.SetActive(false);
-				}
-			}
-			else { // No game happening right now
-				turnUI.gameObject.SetActive(false);
-			}
-		}
 
 		// Called in the lobby before the game starts, when someone wants the mat
 		public void ClaimMat(){
@@ -71,12 +34,13 @@ namespace VRCPoker{
 			Log(player.displayName + " joined the game.");
 		}
 
+
+		//  UI Calls
+
 		// Called by the turn UI
 		public void Fold(){
 			if( gameState.TriggerFold(this) ){
-				// Unnecessary for now since the game state takes it over and serializes
-				/*RequestSerialization();
-				OnDeserialization();*/
+				
 			}
 		}
 
@@ -84,6 +48,41 @@ namespace VRCPoker{
 		public void CallBetRaise(){
 			gameState.TriggerCallBetRaise(this, 0); // Todo
 		}
+
+
+		//  Deserialization from game state, player is already correct
+
+		public void MyTurn(){
+			turnUI.gameObject.SetActive(true);
+			joinButton.gameObject.SetActive(false);
+		}
+
+		public void SomeoneElsesTurn(){
+			turnUI.gameObject.SetActive(false);
+			joinButton.gameObject.SetActive(false);
+		}
+
+		public void WaitingForTurn(){
+			turnUI.gameObject.SetActive(false);
+			joinButton.gameObject.SetActive(false);
+		}
+
+		public void Folded(){
+			turnUI.gameObject.SetActive(false);
+			joinButton.gameObject.SetActive(false);
+		}
+
+		public void WaitingForGame(){
+			turnUI.gameObject.SetActive(false);
+
+			if( player == null ){
+				joinButton.gameObject.SetActive(true); // Join if you want
+			}
+			else{
+				joinButton.gameObject.SetActive(false); // Already taken
+			}
+		}
+
 
 		private void Log(string msg){
 			gameState.logger._Log("GameMat", msg);

@@ -316,6 +316,7 @@ MonoBehaviour:
   _udonSharpBackingUdonBehaviour: {fileID: 5490681715179813963}
   gameState: {fileID: 0}
   startButton: {fileID: 367426673108440085}
+  cards: {fileID: 6181848148653329470}
 --- !u!114 &5490681715179813963
 MonoBehaviour:
   m_ObjectHideFlags: 0

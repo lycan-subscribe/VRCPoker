@@ -5,33 +5,36 @@ using VRC.SDKBase;
 using VRC.Udon;
 
 namespace VRCPoker {
-	
+
+	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class DealerMat : UdonSharpBehaviour
 	{
 		public PokerGameState gameState;
 		public StartButton startButton;
-		
-		void Start(){
-			OnDeserialization();
-		}
+		public CardHand cards;
+
 
 		public void StartGame(){
 			if( gameState.TriggerStartGame() ){
-				Networking.SetOwner(Networking.LocalPlayer, gameObject);
-				RequestSerialization();
-				//OnDeserialization();
+				
 			}
 		}
 
-		public override void OnDeserialization(){
-			Log("[DEBUG] Deserialization");
-			if( gameState.CanStart() ){
-				startButton.gameObject.SetActive(true);
-			}
-			else{
-				startButton.gameObject.SetActive(false);
-			}
+
+		// Deserialization from game state
+
+		public void InGame(){
+			startButton.gameObject.SetActive(false);
 		}
+
+		public void WaitingForPlayers(){
+			startButton.gameObject.SetActive(false);
+		}
+
+		public void CanStart(){
+			startButton.gameObject.SetActive(true);
+		}
+
 
 		private void Log(string msg){
 			gameState.logger._Log("DealerMat", msg);

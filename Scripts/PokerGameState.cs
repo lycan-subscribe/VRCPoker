@@ -30,6 +30,9 @@ namespace VRCPoker{
 
 		#endregion
 
+		[UdonSynced]
+		public int[] playerMatOwners;
+
 
         #region GameVariables
 
@@ -41,13 +44,53 @@ namespace VRCPoker{
         #endregion
 
 
-        /*void Start()
+        protected void BaseStart()
 		{
 			// Validate here? Make sure nothing is null?
-		}*/
+
+			playerMatOwners = new int[playerMats.Length];
+
+			OnDeserialization();
+		}
 
 		public override void OnDeserialization(){
 			Log("[DEBUG] Game State Deserialization");
+
+			for(int i=0; i<playerMats.Length; i++){
+				GameMat mat = playerMats[i];
+				mat.player = VRCPlayerApi.GetPlayerById(playerMatOwners[i]);
+
+				if( gameInProgress ){
+					if( playerMats[currentPlayer] == mat ){ // This mat's turn
+						if( Networking.LocalPlayer == mat.player ){ // You own the mat
+							Log("[DEBUG] your turn - player " + currentPlayer);
+							mat.MyTurn();
+						}
+						else { // Someone else's mat
+							mat.SomeoneElsesTurn();
+						}
+						
+					}
+					else { // Not this mat's turn
+						mat.WaitingForTurn();
+					}
+				}
+				else{
+					mat.WaitingForGame();
+				}
+			}
+
+			if( CanStart() ){
+				dealerMat.CanStart();
+			}
+			else if( gameInProgress ){
+				dealerMat.InGame();
+			}
+			else{
+				dealerMat.WaitingForPlayers();
+			}
+
+			
 		}
 
 
@@ -111,15 +154,8 @@ namespace VRCPoker{
 
 			if(!alreadyJoined && !gameInProgress){
 				// Claim the mat
-                mat._playerId = Networking.LocalPlayer.playerId;
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat.RequestSerialization();
-				mat.OnDeserialization();
-
-				// Refresh the start button in case people can play now
-				Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-				dealerMat.RequestSerialization();
-				dealerMat.OnDeserialization();
+				playerMatOwners[ MatIndex(mat) ] = Networking.LocalPlayer.playerId;
+				SerializeAll();
 
 				return true;
 			}
@@ -204,21 +240,19 @@ namespace VRCPoker{
 			return null;
 		}
 
+		protected int MatIndex(GameMat mat){
+			for(int i=0; i< playerMats.Length; i++){
+				if(playerMats[i] == mat)
+					return i;
+			}
+			return -1;
+		}
+
 		// Refresh game state, dealer mat, and all game mats for every player
 		private void SerializeAll(){
 			Networking.SetOwner(Networking.LocalPlayer, gameObject);
 			RequestSerialization();
 			OnDeserialization();
-
-			Networking.SetOwner(Networking.LocalPlayer, dealerMat.gameObject);
-			dealerMat.RequestSerialization();
-			dealerMat.OnDeserialization();
-
-			foreach(GameMat mat in playerMats){
-				Networking.SetOwner(Networking.LocalPlayer, mat.gameObject);
-				mat.RequestSerialization();
-				mat.OnDeserialization();
-			}
 		}
 
         protected void Log(string msg){

@@ -33,6 +33,7 @@ namespace VRCPoker{
 		#endregion
 
 		void Start(){
+			base.BaseStart();
 			Log("Initializing table...");
 			playerInGame = new bool[playerMats.Length];
 		}
