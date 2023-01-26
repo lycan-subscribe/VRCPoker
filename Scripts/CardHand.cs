@@ -9,7 +9,7 @@ namespace VRCPoker{
     public class CardHand : UdonSharpBehaviour
     {
         public MeshFilter[] cardObjects;
-        VRCPlayerApi onlyRenderFor = null;
+        public VRCPlayerApi onlyRenderFor = null;
 
         #region Appearance
         public Mesh[] cardMeshes;
@@ -17,15 +17,18 @@ namespace VRCPoker{
         #endregion
 
         [UdonSynced]
-        Suit[] cardSuits;
+        public Suit[] cardSuits;
         [UdonSynced]
-        Rank[] cardRanks;
+        public Rank[] cardRanks;
+        [UdonSynced]
+        public int playNext;
 
         void Start()
         {
             // cardObjects is size of the hand, so we can set all arrays to constant size
             cardSuits = new Suit[ cardObjects.Length ];
             cardRanks = new Rank[ cardObjects.Length ];
+            playNext = 0;
 
             for(int i=0; i < cardObjects.Length; i++){
                 cardSuits[i] = Suit.DNE;
@@ -38,7 +41,7 @@ namespace VRCPoker{
         public override void OnDeserialization(){
             
             for(int i=0; i < cardObjects.Length; i++){
-                if( cardSuits[i] != Suit.DNE ){
+                if( cardSuits[i] != Suit.DNE && i < playNext ){
                     // Render card
                     cardObjects[i].gameObject.SetActive(true);
                     

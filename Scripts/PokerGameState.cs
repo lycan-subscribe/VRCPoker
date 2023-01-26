@@ -1,6 +1,7 @@
 ﻿using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
+using VRC.Udon;
 using VRC.Udon.Common.Interfaces;
 
 namespace VRCPoker{
@@ -41,6 +42,14 @@ namespace VRCPoker{
         [UdonSynced]
 		public int currentPlayer = -1; // Index of playerMats whose turn it is
 
+		// Deck Variables
+		[UdonSynced]
+		public Suit[] deckSuits = new Suit[52];
+		[UdonSynced]
+		public Rank[] deckRanks = new Rank[52];
+		[UdonSynced]
+		public int drawNext = 51; // Start at the end
+
         #endregion
 
 
@@ -49,6 +58,11 @@ namespace VRCPoker{
 			// Validate here? Make sure nothing is null?
 
 			playerMatOwners = new int[playerMats.Length];
+
+			for(int i=0; i<deckRanks.Length; i++){
+				deckRanks[i] = (Rank) ( i % 13 );
+				deckSuits[i] = (Suit) ( i / 13 );
+			}
 
 			OnDeserialization();
 		}
@@ -59,6 +73,7 @@ namespace VRCPoker{
 			for(int i=0; i<playerMats.Length; i++){
 				GameMat mat = playerMats[i];
 				mat.player = VRCPlayerApi.GetPlayerById(playerMatOwners[i]);
+				mat.hand.onlyRenderFor = mat.player;
 
 				if( gameInProgress ){
 					if( playerMats[currentPlayer] == mat ){ // This mat's turn
@@ -167,6 +182,13 @@ namespace VRCPoker{
             gameInProgress = false;
             currentPlayer = winner;
 
+			foreach(GameMat mat in playerMats){
+				mat.hand.playNext = 0;
+				Networking.SetOwner(Networking.LocalPlayer, mat.hand.gameObject);
+				mat.hand.RequestSerialization();
+				mat.hand.OnDeserialization();
+			}
+
 			SerializeAll();
 
             SendCustomNetworkEvent(NetworkEventTarget.All, "PlayerWon");
@@ -201,6 +223,45 @@ namespace VRCPoker{
 		}
 		protected abstract void RoundFinished(); // Called before NextPlayer at the end of one circle
 		protected abstract void NextPlayer();
+
+
+		/*
+		 *  DECK
+		 */
+
+		// Really hoping Udon 2 comes out soon
+		protected void ShuffleDeck(){
+			drawNext = deckRanks.Length-1; // End of the deck
+
+			for (int i = deckRanks.Length-1; i > 0; i--) 
+			{
+				int j = (int) (Random.Range(0,0.9999f) * (i+1)); // Index to swap with, from 0 to i
+
+				Rank r = deckRanks[j];
+				Suit s = deckSuits[j];
+				deckRanks[j] = deckRanks[i];
+				deckSuits[j] = deckSuits[i];
+				deckRanks[i] = r;
+				deckSuits[i] = s;
+			}
+		}
+
+		protected void DealCards(int player, int num){
+			CardHand hand = playerMats[player].hand;
+
+			for(int i=0; i<num; i++){
+
+				hand.cardSuits[hand.playNext] = deckSuits[drawNext];
+				hand.cardRanks[hand.playNext] = deckRanks[drawNext];
+				hand.playNext ++;
+				drawNext --;
+
+			}
+
+			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
+			hand.RequestSerialization();
+			hand.OnDeserialization();
+		}
 
 
         /*

@@ -41,10 +41,12 @@ namespace VRCPoker{
 
 		protected override bool StartGame(){
 			roundNumber = 0;
+			ShuffleDeck();
 
 			for(int i=0; i<playerMats.Length; i++){
 				if( playerMats[i].player != null ){
 					playerInGame[i] = true;
+					DealCards(i, 2);
 				}
 				else{
 					playerInGame[i] = false;
