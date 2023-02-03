@@ -13,9 +13,10 @@ namespace VRCPoker{
 	{
 		public PokerGameState gameState;
 		public JoinButton joinButton;
-		public Canvas turnUI;
+		public GameObject turnUI;
 		public TMP_Text foldText;
 		public TMP_Text callText;
+		public GameObject someoneElsesTurnIndicator;
 		public CardHand hand;
 
 		public VRCPlayerApi player = null;
@@ -53,27 +54,38 @@ namespace VRCPoker{
 		//  Deserialization from game state, player is already correct
 
 		public void MyTurn(){
-			turnUI.gameObject.SetActive(true);
+			turnUI.SetActive(true);
 			joinButton.gameObject.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(false);
 		}
 
 		public void SomeoneElsesTurn(){
-			turnUI.gameObject.SetActive(false);
+			turnUI.SetActive(false);
 			joinButton.gameObject.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(true);
 		}
 
 		public void WaitingForTurn(){
-			turnUI.gameObject.SetActive(false);
+			turnUI.SetActive(false);
 			joinButton.gameObject.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(false);
 		}
 
 		public void Folded(){
-			turnUI.gameObject.SetActive(false);
+			turnUI.SetActive(false);
 			joinButton.gameObject.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(false);
+		}
+
+		public void NoOwner(){ // Mid game
+			turnUI.SetActive(false);
+			joinButton.gameObject.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(false);
 		}
 
 		public void WaitingForGame(){
-			turnUI.gameObject.SetActive(false);
+			turnUI.SetActive(false);
+			someoneElsesTurnIndicator.SetActive(false);
 
 			if( player == null ){
 				joinButton.gameObject.SetActive(true); // Join if you want

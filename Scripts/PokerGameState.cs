@@ -76,7 +76,10 @@ namespace VRCPoker{
 				mat.hand.onlyRenderFor = mat.player;
 
 				if( gameInProgress ){
-					if( playerMats[currentPlayer] == mat ){ // This mat's turn
+					if( mat.player == null ){ // Noone owns this mat
+						mat.NoOwner();
+					}
+					else if( playerMats[currentPlayer] == mat ){ // This mat's turn
 						if( Networking.LocalPlayer == mat.player ){ // You own the mat
 							Log("[DEBUG] your turn - player " + currentPlayer);
 							mat.MyTurn();
@@ -263,6 +266,20 @@ namespace VRCPoker{
 			hand.OnDeserialization();
 		}
 
+		protected void ClearHand(int player){
+			CardHand hand = playerMats[player].hand;
+
+			for(int i=0; i<hand.cardSuits.Length; i++){
+				// Put them back in the deck? Not going to for now
+				hand.cardSuits[i] = Suit.DNE;
+				hand.cardRanks[i] = Rank.DNE;
+			}
+
+			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
+			hand.RequestSerialization();
+			hand.OnDeserialization();
+		}
+
 
         /*
          *  UTILITY
@@ -324,6 +341,25 @@ namespace VRCPoker{
 		public override void OnPlayerJoined(VRCPlayerApi _){
 			if (Networking.LocalPlayer.IsOwner(gameObject)){
 				RequestSerialization();
+			}
+		}
+
+		public override void OnPlayerLeft(VRCPlayerApi p){
+			if( Networking.LocalPlayer.IsOwner(gameObject) ){
+				for(int i=0; i<playerMats.Length; i++){
+					if( playerMats[i].player == p ){
+						playerMatOwners[i] = -1;
+
+						if( i == currentPlayer )
+							TriggerNextPlayer();
+						else
+							SerializeAll();
+
+						ClearHand(i);
+
+						break;
+					}
+				}
 			}
 		}
     }
