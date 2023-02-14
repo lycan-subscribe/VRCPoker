@@ -1,9 +1,9 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon.Common.Interfaces;
-using TMPro;
 using System;
 
 namespace VRCPoker{
@@ -14,12 +14,15 @@ namespace VRCPoker{
 		public PokerGameState gameState;
 		public JoinButton joinButton;
 		public GameObject turnUI;
-		public TMP_Text foldText;
-		public TMP_Text callText;
+		public Text foldText;
+		public Text callText;
 		public GameObject someoneElsesTurnIndicator;
 		public CardHand hand;
+		public Text debugBetAmt; // Debug - temporary
 
 		public VRCPlayerApi player = null;
+
+		int toBet = 0;
 
 
 		// Called in the lobby before the game starts, when someone wants the mat
@@ -47,7 +50,24 @@ namespace VRCPoker{
 
 		// Called by the turn UI
 		public void CallBetRaise(){
-			gameState.TriggerCallBetRaise(this, 0); // Todo
+			gameState.TriggerCallBetRaise(this, toBet);
+		}
+
+		// Called by the bet UI (eventually?)
+		public void SetBet(int bet){
+			toBet = bet;
+		}
+
+		// Called by the debug bet UI - temporary
+		public void IncreaseBet(){
+			toBet += 5;
+			debugBetAmt.text = toBet.ToString();
+		}
+
+		// Called by the debug bet UI - temporary
+		public void DecreaseBet(){
+			toBet -= 5;
+			debugBetAmt.text = toBet.ToString();
 		}
 
 
