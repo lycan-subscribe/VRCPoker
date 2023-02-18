@@ -24,8 +24,6 @@ namespace VRCPoker{
 		#region GameVariables
 		
 		[UdonSynced]
-		public bool[] playerInGame; // Size of gameMat, who is playing & hasn't folded?
-		[UdonSynced]
 		public int roundNumber = 0;
 		[UdonSynced]
 		public int currentBet = 0;
@@ -35,7 +33,6 @@ namespace VRCPoker{
 		void Start(){
 			base.BaseStart();
 			Log("Initializing table...");
-			playerInGame = new bool[playerMats.Length];
 		}
 
 
@@ -63,30 +60,14 @@ namespace VRCPoker{
 		}
 
 		protected override void NextPlayer(){
-			if( playerInGame[currentPlayer] == false ){
-				TriggerNextPlayer(); // Recursive
-				return;
-			}
-
-			// currentPlayer turn
+			// currentPlayer turn, guaranteed they are still in game
 		}
 
 		protected override bool Fold(){
 			//Log("[DEBUG] folded");
 
 			playerInGame[currentPlayer] = false;
-
-			if( NumPlayersInGame() == 1 ){
-				// Only one person left, so they win by default
-				for(int i=0; i<playerMats.Length; i++){
-					if(playerInGame[i]){
-						EndGame(i);
-					}
-				}
-			}
-			else{
-				TriggerNextPlayer();
-			}
+			TriggerNextPlayer();
 
 			return true;
 		}
@@ -97,20 +78,6 @@ namespace VRCPoker{
 			TriggerNextPlayer(); // As a test
 
 			return true;
-		}
-
-
-		// Utility
-
-		// How many haven't folded yet
-		private int NumPlayersInGame(){
-			int numPlaying = 0;
-
-			foreach(bool p in playerInGame){
-				if(p) numPlaying++;
-			}
-
-			return numPlaying;
 		}
 
 		

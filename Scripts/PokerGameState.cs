@@ -41,6 +41,8 @@ namespace VRCPoker{
 		public bool gameInProgress = false;
         [UdonSynced]
 		public int currentPlayer = -1; // Index of playerMats whose turn it is
+		[UdonSynced]
+		public bool[] playerInGame; // Size of gameMat, who is playing & hasn't folded?
 
 		// Deck Variables
 		[UdonSynced]
@@ -58,6 +60,7 @@ namespace VRCPoker{
 			// Validate here? Make sure nothing is null?
 
 			playerMatOwners = new int[playerMats.Length];
+			playerInGame = new bool[playerMats.Length];
 
 			for(int i=0; i<deckRanks.Length; i++){
 				deckRanks[i] = (Rank) ( i % 13 );
@@ -76,7 +79,10 @@ namespace VRCPoker{
 				mat.hand.onlyRenderFor = mat.player;
 
 				if( gameInProgress ){
-					if( playerMats[currentPlayer] == mat ){ // This mat's turn
+					if( mat.player == null ){ // Noone owns this mat
+						mat.NoOwner();
+					}
+					else if( playerMats[currentPlayer] == mat ){ // This mat's turn
 						if( Networking.LocalPlayer == mat.player ){ // You own the mat
 							Log("[DEBUG] your turn - player " + currentPlayer);
 							mat.MyTurn();
@@ -182,11 +188,9 @@ namespace VRCPoker{
             gameInProgress = false;
             currentPlayer = winner;
 
-			foreach(GameMat mat in playerMats){
-				mat.hand.playNext = 0;
-				Networking.SetOwner(Networking.LocalPlayer, mat.hand.gameObject);
-				mat.hand.RequestSerialization();
-				mat.hand.OnDeserialization();
+			for(int i=0; i<playerMats.Length; i++){
+				playerMatOwners[i] = -1;
+				ClearHand(i);
 			}
 
 			SerializeAll();
@@ -195,15 +199,28 @@ namespace VRCPoker{
         }
 
         public void PlayerWon(){
-            Log(playerMats[currentPlayer].player.displayName + " won the game!");
+            //Log(playerMats[currentPlayer].player.displayName + " won the game!");
         }
 
 		public void TriggerNextPlayer(){
+			if( NumPlayersInGame() == 1 ){
+				// Only one person left, so they win by default
+				for(int i=0; i<playerMats.Length; i++){
+					if(playerInGame[i]){
+						EndGame(i);
+					}
+				}
+				return;
+			}
+
 			currentPlayer++;
 
 			// Find the next gameMat with a player
-			while( currentPlayer < playerMats.Length && playerMats[currentPlayer].player == null ){
+			while( playerMats[currentPlayer].player == null
+				   || playerInGame[currentPlayer] == false ){
+
 				currentPlayer++;
+				if( currentPlayer >= playerMats.Length ) break;
 			}
 			
 			if( currentPlayer >= playerMats.Length ){
@@ -212,8 +229,11 @@ namespace VRCPoker{
 			}
 
 			// Find the next gameMat with a player again
-			while( currentPlayer < playerMats.Length && playerMats[currentPlayer].player == null ){
+			while( playerMats[currentPlayer].player == null
+				   || playerInGame[currentPlayer] == false ){
+				
 				currentPlayer++;
+				if( currentPlayer >= playerMats.Length ) break; // Should never happen
 			}
 			//assert currentPlayer < playerMats.Length
 
@@ -256,6 +276,21 @@ namespace VRCPoker{
 				hand.playNext ++;
 				drawNext --;
 
+			}
+
+			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
+			hand.RequestSerialization();
+			hand.OnDeserialization();
+		}
+
+		protected void ClearHand(int player){
+			CardHand hand = playerMats[player].hand;
+
+			for(int i=0; i<hand.cardSuits.Length; i++){
+				// Put them back in the deck? Not going to for now
+				//hand.cardSuits[i] = Suit.DNE;
+				//hand.cardRanks[i] = Rank.DNE;
+				hand.playNext = 0;
 			}
 
 			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
@@ -320,10 +355,41 @@ namespace VRCPoker{
 			logger._Log("GameCode", msg);
 		}
 
+		// How many haven't folded yet
+		private int NumPlayersInGame(){
+			int numPlaying = 0;
+
+			foreach(bool p in playerInGame){
+				if(p) numPlaying++;
+			}
+
+			return numPlaying;
+		}
+
 		// Fix a glitch from 2022
 		public override void OnPlayerJoined(VRCPlayerApi _){
 			if (Networking.LocalPlayer.IsOwner(gameObject)){
 				RequestSerialization();
+			}
+		}
+
+		public override void OnPlayerLeft(VRCPlayerApi p){
+			if( Networking.LocalPlayer.IsOwner(gameObject) ){
+				for(int i=0; i<playerMats.Length; i++){
+					if( playerMats[i].player == p ){
+						playerMatOwners[i] = -1;
+						playerInGame[i] = false;
+
+						if( i == currentPlayer )
+							TriggerNextPlayer();
+						else
+							SerializeAll();
+
+						ClearHand(i);
+
+						break;
+					}
+				}
 			}
 		}
     }
