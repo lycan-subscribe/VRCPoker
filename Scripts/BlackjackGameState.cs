@@ -19,6 +19,10 @@ namespace VRCPoker{
             return false;
         }
 
+        protected override void AfterDeserialization(){
+
+        }
+
         protected override bool Fold(){
             return false;
         }
@@ -27,12 +31,12 @@ namespace VRCPoker{
             return false;
         }
 
-        protected override void RoundFinished(){
+        protected override void NextPlayer(){
 
         }
 
-        protected override void NextPlayer(){
-
+        protected override int GetMinimumBet(){
+            return 0;
         }
     }
 

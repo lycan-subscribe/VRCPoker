@@ -32,7 +32,7 @@ namespace VRCPoker{
 		#endregion
 
 		[UdonSynced]
-		public int[] playerMatOwners;
+		public int[] playerMatOwners; // Size of playerMats, player API IDs, -1 if noone
 
 
         #region GameVariables
@@ -42,7 +42,9 @@ namespace VRCPoker{
         [UdonSynced]
 		public int currentPlayer = -1; // Index of playerMats whose turn it is
 		[UdonSynced]
-		public bool[] playerInGame; // Size of gameMat, who is playing & hasn't folded?
+		public bool[] playerInGame; // Size of playerMats, who is playing & hasn't folded?
+		[UdonSynced]
+		public int[] numPlayerChips;
 
 		// Deck Variables
 		[UdonSynced]
@@ -61,6 +63,7 @@ namespace VRCPoker{
 
 			playerMatOwners = new int[playerMats.Length];
 			playerInGame = new bool[playerMats.Length];
+			numPlayerChips = new int[playerMats.Length];
 
 			for(int i=0; i<deckRanks.Length; i++){
 				deckRanks[i] = (Rank) ( i % 13 );
@@ -111,8 +114,9 @@ namespace VRCPoker{
 				dealerMat.WaitingForPlayers();
 			}
 
-			
+			AfterDeserialization();
 		}
+		protected abstract void AfterDeserialization();
 
 
         /*
@@ -224,7 +228,6 @@ namespace VRCPoker{
 			}
 			
 			if( currentPlayer >= playerMats.Length ){
-				RoundFinished();
 				currentPlayer = 0;
 			}
 
@@ -241,8 +244,8 @@ namespace VRCPoker{
 
 			SerializeAll();
 		}
-		protected abstract void RoundFinished(); // Called before NextPlayer at the end of one circle
 		protected abstract void NextPlayer();
+		protected abstract int GetMinimumBet();
 
 
 		/*
@@ -342,6 +345,18 @@ namespace VRCPoker{
 					return i;
 			}
 			return -1;
+		}
+
+		protected int NumChips(int player){
+			return 10000000; //todo
+		}
+
+		protected void TakeChips(int player, int amt){
+			//todo
+		}
+
+		protected void GiveChips(int player, int amt){
+			//todo
 		}
 
 		// Refresh game state, dealer mat, and all game mats for every player

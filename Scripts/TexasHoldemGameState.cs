@@ -26,18 +26,31 @@ namespace VRCPoker{
 		[UdonSynced]
 		public int roundNumber = 0;
 		[UdonSynced]
-		public int currentBet = 0;
+		public int currentBet = 0; // Reset every time the round ends
+		[UdonSynced]
+		public int lastPlayerToRaise = 0;
+		[UdonSynced]
+		public int pot = 0;
+		[UdonSynced]
+		public int[] playerBet;
 
 		#endregion
 
 		void Start(){
 			base.BaseStart();
 			Log("Initializing table...");
+
+			playerBet = new int[playerMats.Length];
+		}
+
+		protected override void AfterDeserialization(){
+			dealerMat.debugPotAmt.text = pot.ToString();
 		}
 
 
 		protected override bool StartGame(){
 			roundNumber = 0;
+			currentBet = startingBet;
 			ShuffleDeck();
 
 			for(int i=0; i<playerMats.Length; i++){
@@ -53,14 +66,21 @@ namespace VRCPoker{
 			return true;
 		}
 
-		protected override void RoundFinished(){
+		void RoundFinished(){
 			roundNumber++;
 
 			Log("[DEBUG] Round finished. Starting round " + roundNumber);
+
+			// lastPlayerToRaise stays the same for now
+			// End the game if the round number is high enough?
 		}
 
 		protected override void NextPlayer(){
 			// currentPlayer turn, guaranteed they are still in game
+
+			if( currentPlayer == lastPlayerToRaise ){
+				RoundFinished();
+			}
 		}
 
 		protected override bool Fold(){
@@ -74,10 +94,19 @@ namespace VRCPoker{
 
 		protected override bool CallBetRaise(int amount){
 			//Log("[DEBUG] Called");
+			if( NumChips(currentPlayer) < amount ) return false;
 
-			TriggerNextPlayer(); // As a test
+			TakeChips(currentPlayer, amount);
+			pot += amount;
+			lastPlayerToRaise = currentPlayer;
+
+			TriggerNextPlayer();
 
 			return true;
+		}
+
+		protected override int GetMinimumBet(){
+			return currentBet;
 		}
 
 		

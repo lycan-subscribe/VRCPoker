@@ -18,6 +18,7 @@ namespace VRCPoker{
 		public Text callText;
 		public GameObject someoneElsesTurnIndicator;
 		public CardHand hand;
+		
 		public Text debugBetAmt; // Debug - temporary
 
 		public VRCPlayerApi player = null;
@@ -54,7 +55,7 @@ namespace VRCPoker{
 		}
 
 		// Called by the bet UI (eventually?)
-		public void SetBet(int bet){
+		public void SetNumberOfChipsToBet(int bet){
 			toBet = bet;
 		}
 
