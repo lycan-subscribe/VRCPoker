@@ -11,6 +11,9 @@ namespace VRCPoker{
 	[UdonBehaviourSyncMode(BehaviourSyncMode.Manual)]
 	public class GameMat : UdonSharpBehaviour
 	{
+		public Color VALID_TEXT = Color.white;
+		public Color INVALID_TEXT = Color.grey;
+
 		public PokerGameState gameState;
 		public JoinButton joinButton;
 		public GameObject turnUI;
@@ -62,13 +65,34 @@ namespace VRCPoker{
 		// Called by the debug bet UI - temporary
 		public void IncreaseBet(){
 			toBet += 5;
-			debugBetAmt.text = toBet.ToString();
+			UpdateDebugUI();
 		}
 
 		// Called by the debug bet UI - temporary
 		public void DecreaseBet(){
 			toBet -= 5;
+			UpdateDebugUI();
+		}
+
+		private void UpdateDebugUI(){
 			debugBetAmt.text = toBet.ToString();
+			int amountNeeded = gameState.GetMinimumBet(); // Minimum you need to put in to call
+			if(toBet > amountNeeded){
+				callText.text = "Raise";
+				callText.color = VALID_TEXT;
+			}
+			else if(toBet == amountNeeded && toBet == 0){
+				callText.text = "Check";
+				callText.color = VALID_TEXT;
+			}
+			else if(toBet == amountNeeded){
+				callText.text = "Call";
+				callText.color = VALID_TEXT;
+			}
+			else{
+				callText.text = "(Min " + amountNeeded + ")";
+				callText.color = INVALID_TEXT;
+			}
 		}
 
 
@@ -78,6 +102,7 @@ namespace VRCPoker{
 			turnUI.SetActive(true);
 			joinButton.gameObject.SetActive(false);
 			someoneElsesTurnIndicator.SetActive(false);
+			UpdateDebugUI();
 		}
 
 		public void SomeoneElsesTurn(){

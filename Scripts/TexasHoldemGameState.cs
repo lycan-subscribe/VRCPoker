@@ -169,6 +169,14 @@ namespace VRCPoker{
 			return currentBet - playerBet[currentPlayer];
 		}
 
+		public bool CanCall(int amt){
+			return amt == GetMinimumBet();
+		}
+
+		public bool CanRaise(int amt){
+			return amt > GetMinimumBet();
+		}
+
 		
 	}
 
