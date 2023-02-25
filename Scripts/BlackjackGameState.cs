@@ -35,7 +35,7 @@ namespace VRCPoker{
 
         }
 
-        protected override int GetMinimumBet(){
+        public override int GetMinimumBet(){
             return 0;
         }
     }

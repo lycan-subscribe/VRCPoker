@@ -192,9 +192,10 @@ namespace VRCPoker{
             gameInProgress = false;
             currentPlayer = winner;
 
+			ClearHand(dealerMat.cards);
 			for(int i=0; i<playerMats.Length; i++){
 				playerMatOwners[i] = -1;
-				ClearHand(i);
+				ClearHand(playerMats[i].hand);
 			}
 
 			SerializeAll();
@@ -203,11 +204,12 @@ namespace VRCPoker{
         }
 
         public void PlayerWon(){
-            //Log(playerMats[currentPlayer].player.displayName + " won the game!");
+            //Log(playerMats[currentPlayer].player.displayName + " won the game!"); // Exception?
         }
 
+		// Is also called at the beginning of the game
 		public void TriggerNextPlayer(){
-			if( NumPlayersInGame() == 1 ){
+			if( NotFolded() == 1 ){
 				// Only one person left, so they win by default
 				for(int i=0; i<playerMats.Length; i++){
 					if(playerInGame[i]){
@@ -245,7 +247,7 @@ namespace VRCPoker{
 			SerializeAll();
 		}
 		protected abstract void NextPlayer();
-		protected abstract int GetMinimumBet();
+		public abstract int GetMinimumBet();
 
 
 		/*
@@ -269,9 +271,8 @@ namespace VRCPoker{
 			}
 		}
 
-		protected void DealCards(int player, int num){
-			CardHand hand = playerMats[player].hand;
-
+		protected void DealCards(CardHand hand, int num){
+			
 			for(int i=0; i<num; i++){
 
 				hand.cardSuits[hand.playNext] = deckSuits[drawNext];
@@ -286,15 +287,14 @@ namespace VRCPoker{
 			hand.OnDeserialization();
 		}
 
-		protected void ClearHand(int player){
-			CardHand hand = playerMats[player].hand;
+		protected void ClearHand(CardHand hand){
 
-			for(int i=0; i<hand.cardSuits.Length; i++){
+			/*for(int i=0; i<hand.cardSuits.Length; i++){
 				// Put them back in the deck? Not going to for now
-				//hand.cardSuits[i] = Suit.DNE;
-				//hand.cardRanks[i] = Rank.DNE;
-				hand.playNext = 0;
-			}
+				hand.cardSuits[i] = Suit.DNE;
+				hand.cardRanks[i] = Rank.DNE;
+			}*/
+			hand.playNext = 0;
 
 			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
 			hand.RequestSerialization();
@@ -318,8 +318,19 @@ namespace VRCPoker{
 			return alreadyJoined;
 		}
 
+		// How many haven't folded yet
+		public int NotFolded(){
+			int numPlaying = 0;
+
+			foreach(bool p in playerInGame){
+				if(p) numPlaying++;
+			}
+
+			return numPlaying;
+		}
+
         // Gamemats are used as the player array, check them
-		protected int NumPlayers(){
+		public int NumPlayers(){
 			int numJoined = 0;
 			
 			foreach(GameMat gm in playerMats){
@@ -370,17 +381,6 @@ namespace VRCPoker{
 			logger._Log("GameCode", msg);
 		}
 
-		// How many haven't folded yet
-		private int NumPlayersInGame(){
-			int numPlaying = 0;
-
-			foreach(bool p in playerInGame){
-				if(p) numPlaying++;
-			}
-
-			return numPlaying;
-		}
-
 		// Fix a glitch from 2022
 		public override void OnPlayerJoined(VRCPlayerApi _){
 			if (Networking.LocalPlayer.IsOwner(gameObject)){
@@ -389,7 +389,7 @@ namespace VRCPoker{
 		}
 
 		public override void OnPlayerLeft(VRCPlayerApi p){
-			if( Networking.LocalPlayer.IsOwner(gameObject) ){
+			if( Networking.LocalPlayer.IsOwner(gameObject) ){ // Errors, not sure for who
 				for(int i=0; i<playerMats.Length; i++){
 					if( playerMats[i].player == p ){
 						playerMatOwners[i] = -1;
@@ -400,7 +400,7 @@ namespace VRCPoker{
 						else
 							SerializeAll();
 
-						ClearHand(i);
+						ClearHand(playerMats[i].hand);
 
 						break;
 					}
