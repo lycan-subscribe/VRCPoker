@@ -76,6 +76,7 @@ namespace Tests
             Assert.That(winningHands[0] == 2);
         }
 
+        [Test]
         public void ThreeOfKindWins()
         {
             int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
@@ -84,6 +85,7 @@ namespace Tests
             Assert.That(winningHands[0] == 1);
         }
 
+        [Test]
         public void highCardSplitPot()
         {
             int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
