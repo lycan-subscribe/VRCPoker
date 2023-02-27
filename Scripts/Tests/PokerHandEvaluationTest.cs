@@ -10,7 +10,7 @@ namespace Tests
     [TestFixture]
     public class PokerHandEvaluationTest
     {
-        private CardHand common, highNine, highKing, highJack, pair, twoPair, threeOfKind, highKing2;
+        private CardHand common, common2, highNine, highKing, highJack, pair, twoPair, threeOfKind, highKing2, flushNine, flushTen;
 
         [SetUp]
         public void CardHands()
@@ -18,6 +18,10 @@ namespace Tests
             common = new GameObject().AddComponent<CardHand>();
             common.cardRanks = new Rank[] { Rank.Seven, Rank.Six, Rank.Three, Rank.Queen, Rank.Two };
             common.cardSuits = new Suit[] { Suit.Spades, Suit.Clubs, Suit.Diamonds, Suit.Clubs, Suit.Diamonds };
+
+            common2 = new GameObject().AddComponent<CardHand>();
+            common2.cardRanks = new Rank[] { Rank.Seven, Rank.Six, Rank.Three, Rank.Four, Rank.Two };
+            common2.cardSuits = new Suit[] { Suit.Spades, Suit.Clubs, Suit.Clubs, Suit.Clubs, Suit.Diamonds };
 
             highNine = new GameObject().AddComponent<CardHand>();
             highNine.cardRanks = new Rank[] { Rank.Five, Rank.Nine };
@@ -47,7 +51,16 @@ namespace Tests
             threeOfKind.cardRanks = new Rank[] { Rank.Seven, Rank.Seven };
             threeOfKind.cardSuits = new Suit[] { Suit.Hearts, Suit.Diamonds };
 
+            flushNine = new GameObject().AddComponent<CardHand>();
+            flushNine.cardRanks = new Rank[] { Rank.Seven, Rank.Nine };
+            flushNine.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
+
+            flushTen = new GameObject().AddComponent<CardHand>();
+            flushTen.cardRanks = new Rank[] { Rank.Two, Rank.Ten };
+            flushTen.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
         }
+
+        // Using Common1
 
         [Test]
         public void HighCardWins()
@@ -83,6 +96,59 @@ namespace Tests
                 { highNine, threeOfKind, highKing, twoPair, highJack, pair });
             Assert.That(winningHands.Length == 1);
             Assert.That(winningHands[0] == 1);
+        }
+
+        // Using Commmon2
+
+        [Test]
+        public void Straight()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common2, new CardHand[]
+                { twoPair, highNine });
+            Assert.That(winningHands.Length == 1);
+            Assert.That(winningHands[0] == 1);
+        }
+
+        [Test]
+        public void Flush()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common2, new CardHand[]
+                { twoPair, highNine, flushNine });
+            Assert.That(winningHands.Length == 1);
+            Assert.That(winningHands[0] == 2);
+        }
+
+        [Test]
+        public void MultiFlush()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common2, new CardHand[]
+                { flushTen, twoPair, highNine, flushNine });
+            Assert.That(winningHands.Length == 1);
+            Assert.That(winningHands[0] == 0);
+        }
+
+        [Test]
+        public void FullHouse()
+        {
+            Assert.Fail("Test not implemented");
+        }
+
+        [Test]
+        public void FourOfKind()
+        {
+            Assert.Fail("Test not implemented");
+        }
+
+        [Test]
+        public void StraightFlush()
+        {
+            Assert.Fail("Test not implemented");
+        }
+
+        [Test]
+        public void RoyalFlush()
+        {
+            Assert.Fail("Test not implemented");
         }
 
         [Test]
