@@ -53,14 +53,17 @@ namespace VRCPoker{
 			roundNumber = 0;
 			ShuffleDeck();
 
+			ClearHand(dealerMat.cards);
 			for(int i=0; i<playerMats.Length; i++){
 				if( playerMats[i].player != null ){
 					playerInGame[i] = true;
+					ClearHand(playerMats[i].hand);
 					DealCards(playerMats[i].hand, 2);
 				}
 				else{
 					playerInGame[i] = false;
 				}
+				playerWon[i] = false;
 			}
 
 			return true;
@@ -97,23 +100,25 @@ namespace VRCPoker{
 					}
 				}
 
-				int winnerIndex = WinningHandSolver.GetWinningHand(dealerMat.cards, playerHands);
+				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands);
 				// Convert back to index of playerMats
-				int winner = 0;
+				/*int[] winners = new int[winnerIndices.Length];
+				index = 0;
 				for(int i=0; i<playerMats.Length; i++){
 					if( playerInGame[i] ){
-						if(winnerIndex == index){
+						if(winnerIndices == index){
 							winner = i;
-							break;
 						}
 
 						index++;
 					}
 				}
 
-				GiveChips(winner, pot);
+				for(int i=0; i<winners.Length; i++){
+					GiveChips(winners[i], pot / winners.Length);
+				}*/
 				pot = 0;
-				EndGame(winner);
+				EndGame();
 				return;
 			}
 

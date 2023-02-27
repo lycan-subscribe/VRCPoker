@@ -44,6 +44,8 @@ namespace VRCPoker{
 		[UdonSynced]
 		public bool[] playerInGame; // Size of playerMats, who is playing & hasn't folded?
 		[UdonSynced]
+		public bool[] playerWon; // Size of playerMats, used after round ends
+		[UdonSynced]
 		public int[] numPlayerChips;
 
 		// Deck Variables
@@ -64,6 +66,7 @@ namespace VRCPoker{
 			playerMatOwners = new int[playerMats.Length];
 			playerInGame = new bool[playerMats.Length];
 			numPlayerChips = new int[playerMats.Length];
+			playerWon = new bool[playerMats.Length];
 
 			for(int i=0; i<deckRanks.Length; i++){
 				deckRanks[i] = (Rank) ( i % 13 );
@@ -79,9 +82,10 @@ namespace VRCPoker{
 			for(int i=0; i<playerMats.Length; i++){
 				GameMat mat = playerMats[i];
 				mat.player = VRCPlayerApi.GetPlayerById(playerMatOwners[i]);
-				mat.hand.onlyRenderFor = mat.player;
 
 				if( gameInProgress ){
+					mat.hand.onlyRenderFor = mat.player;
+
 					if( mat.player == null ){ // Noone owns this mat
 						mat.NoOwner();
 					}
@@ -100,6 +104,7 @@ namespace VRCPoker{
 					}
 				}
 				else{
+					mat.hand.onlyRenderFor = null; // Show cards at the end
 					mat.WaitingForGame();
 				}
 			}
@@ -188,23 +193,16 @@ namespace VRCPoker{
 			return false;
         }
 
-        public void EndGame(int winner){
+        public void EndGame(){
             gameInProgress = false;
-            currentPlayer = winner;
-
-			ClearHand(dealerMat.cards);
-			for(int i=0; i<playerMats.Length; i++){
-				playerMatOwners[i] = -1;
-				ClearHand(playerMats[i].hand);
-			}
 
 			SerializeAll();
 
-            SendCustomNetworkEvent(NetworkEventTarget.All, "PlayerWon");
+            SendCustomNetworkEvent(NetworkEventTarget.All, "PlayersWon");
         }
 
-        public void PlayerWon(){
-            //Log(playerMats[currentPlayer].player.displayName + " won the game!"); // Exception?
+        public void PlayersWon(){
+            // ...
         }
 
 		// Is also called at the beginning of the game
@@ -213,7 +211,7 @@ namespace VRCPoker{
 				// Only one person left, so they win by default
 				for(int i=0; i<playerMats.Length; i++){
 					if(playerInGame[i]){
-						EndGame(i);
+						EndGame();
 					}
 				}
 				return;
@@ -275,9 +273,9 @@ namespace VRCPoker{
 			
 			for(int i=0; i<num; i++){
 
-				hand.cardSuits[hand.playNext] = deckSuits[drawNext];
-				hand.cardRanks[hand.playNext] = deckRanks[drawNext];
-				hand.playNext ++;
+				hand.cardSuits[hand.Length] = deckSuits[drawNext];
+				hand.cardRanks[hand.Length] = deckRanks[drawNext];
+				hand.Length ++;
 				drawNext --;
 
 			}
@@ -294,7 +292,7 @@ namespace VRCPoker{
 				hand.cardSuits[i] = Suit.DNE;
 				hand.cardRanks[i] = Rank.DNE;
 			}*/
-			hand.playNext = 0;
+			hand.Length = 0;
 
 			Networking.SetOwner(Networking.LocalPlayer, hand.gameObject);
 			hand.RequestSerialization();
