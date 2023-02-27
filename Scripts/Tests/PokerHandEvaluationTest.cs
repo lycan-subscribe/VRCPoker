@@ -10,7 +10,7 @@ namespace Tests
     [TestFixture]
     public class PokerHandEvaluationTest
     {
-        private CardHand common, highNine, highKing, highJack, pair, twoPair;
+        private CardHand common, highNine, highKing, highJack, pair, twoPair, threeOfKind, highKing2;
 
         [SetUp]
         public void CardHands()
@@ -27,6 +27,10 @@ namespace Tests
             highKing.cardRanks = new Rank[] { Rank.King, Rank.Eight };
             highKing.cardSuits = new Suit[] { Suit.Clubs, Suit.Hearts };
 
+            highKing2 = new GameObject().AddComponent<CardHand>();
+            highKing.cardRanks = new Rank[] { Rank.King, Rank.Eight };
+            highKing.cardSuits = new Suit[] { Suit.Spades, Suit.Diamonds };
+
             highJack = new GameObject().AddComponent<CardHand>();
             highJack.cardRanks = new Rank[] { Rank.Eight, Rank.Jack };
             highJack.cardSuits = new Suit[] { Suit.Clubs, Suit.Hearts };
@@ -38,12 +42,18 @@ namespace Tests
             twoPair = new GameObject().AddComponent<CardHand>();
             twoPair.cardRanks = new Rank[] { Rank.Two, Rank.Three };
             twoPair.cardSuits = new Suit[] { Suit.Hearts, Suit.Spades };
+
+            threeOfKind = new GameObject().AddComponent<CardHand>();
+            threeOfKind.cardRanks = new Rank[] { Rank.Seven, Rank.Seven };
+            threeOfKind.cardSuits = new Suit[] { Suit.Hearts, Suit.Diamonds };
+
         }
 
         [Test]
         public void HighCardWins()
         {
-            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[] { highNine, highKing, highJack });
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
+                { highNine, highKing, highJack });
             Assert.That(winningHands.Length == 1);
             Assert.That(winningHands[0] == 1);
         }
@@ -51,7 +61,8 @@ namespace Tests
         [Test]
         public void OnePairWins()
         {
-            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[] { highNine, highKing, highJack, pair });
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
+                { highNine, highKing, highJack, pair });
             Assert.That(winningHands.Length == 1);
             Assert.That(winningHands[0] == 3);
         }
@@ -59,9 +70,27 @@ namespace Tests
         [Test]
         public void TwoPairWins()
         {
-            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[] { highNine, highKing, twoPair, highJack, pair });
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
+                { highNine, highKing, twoPair, highJack, pair });
             Assert.That(winningHands.Length == 1);
             Assert.That(winningHands[0] == 2);
+        }
+
+        public void ThreeOfKindWins()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
+                { highNine, threeOfKind, highKing, twoPair, highJack, pair });
+            Assert.That(winningHands.Length == 1);
+            Assert.That(winningHands[0] == 1);
+        }
+
+        public void highCardSplitPot()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[]
+                { highKing, highNine, highKing2, highJack});
+            Assert.That(winningHands.Length == 2);
+            Assert.Contains(0, winningHands);
+            Assert.Contains(2, winningHands);
         }
 
         [Test]
