@@ -6,6 +6,9 @@ using VRC.Udon;
 
 public class ChipStack : UdonSharpBehaviour
 {
-    int chipValue;
-    int chipCount;
+    public int chipValue;
+    public int chipCount;
+    public int totalValue;
+
+
 }
