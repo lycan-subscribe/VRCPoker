@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
-  m_Name: JoinButton
+  m_Name: TestJoinButton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 7c116ee6e38f25944a3a9c10530c3557,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: b09af93473495cb44a58660b665171e3,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 1
   hasInteractEvent: 1
-  scriptID: -1327417618244233071
+  scriptID: 4511124439547393947
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.GameMat, VRCPoker
+      Data: VRCPoker.TexasHoldEmTestGameMat, VRCPoker
     - Name: 
       Entry: 8
       Data: 
