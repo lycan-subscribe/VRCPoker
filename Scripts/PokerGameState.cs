@@ -83,9 +83,7 @@ namespace VRCPoker{
 
 				mat.GameStateChanged(
 					gameInProgress,
-					mat.player != null,
-					Networking.LocalPlayer == mat.player,
-					currentPlayer < 0 ? false : playerMats[currentPlayer] == mat,
+					gameInProgress && (currentPlayer < 0 ? false : playerMats[currentPlayer] == mat),
 					mat.player != null && gameInProgress && !playerInGame[i]
 				);
 				if( gameInProgress ){

@@ -11,6 +11,6 @@ namespace VRCPoker{
         public VRCPlayerApi player = null;
         public CardHand hand;
 
-        public abstract void GameStateChanged(bool gameInProgress, bool hasOwner, bool youOwnMat, bool thisMatsTurn, bool folded);
+        public abstract void GameStateChanged(bool gameInProgress, bool thisMatsTurn, bool folded);
     }
 }
