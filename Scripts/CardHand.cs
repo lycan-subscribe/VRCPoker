@@ -21,14 +21,14 @@ namespace VRCPoker{
         [UdonSynced]
         public Rank[] cardRanks;
         [UdonSynced]
-        public int playNext;
+        public int Length;
 
         void Start()
         {
             // cardObjects is size of the hand, so we can set all arrays to constant size
             cardSuits = new Suit[ cardObjects.Length ];
             cardRanks = new Rank[ cardObjects.Length ];
-            playNext = 0;
+            Length = 0;
 
             for(int i=0; i < cardObjects.Length; i++){
                 cardSuits[i] = Suit.DNE;
@@ -41,7 +41,7 @@ namespace VRCPoker{
         public override void OnDeserialization(){
             
             for(int i=0; i < cardObjects.Length; i++){
-                if( cardSuits[i] != Suit.DNE && i < playNext ){
+                if( cardSuits[i] != Suit.DNE && i < Length ){
                     // Render card
                     cardObjects[i].gameObject.SetActive(true);
                     

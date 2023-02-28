@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.DealerMat, Assembly-CSharp
+      Data: VRCPoker.DealerMat, VRCPoker
     - Name: 
       Entry: 8
       Data: 

@@ -1,6 +1,7 @@
 ﻿
 using UdonSharp;
 using UnityEngine;
+using UnityEngine.UI;
 using VRC.SDKBase;
 using VRC.Udon;
 
@@ -12,6 +13,8 @@ namespace VRCPoker {
 		public PokerGameState gameState;
 		public StartButton startButton;
 		public CardHand cards;
+
+		public Text debugPotAmt; // Debug - Temporary
 
 
 		public void StartGame(){
@@ -25,14 +28,17 @@ namespace VRCPoker {
 
 		public void InGame(){
 			startButton.gameObject.SetActive(false);
+			debugPotAmt.gameObject.SetActive(true); // DEBUG
 		}
 
 		public void WaitingForPlayers(){
 			startButton.gameObject.SetActive(false);
+			debugPotAmt.gameObject.SetActive(false); // DEBUG
 		}
 
 		public void CanStart(){
 			startButton.gameObject.SetActive(true);
+			debugPotAmt.gameObject.SetActive(false); // DEBUG
 		}
 
 

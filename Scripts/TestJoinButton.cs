@@ -7,9 +7,9 @@ using VRC.Udon;
 namespace VRCPoker {
 
     [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
-    public class JoinButton : UdonSharpBehaviour
+    public class TestJoinButton : UdonSharpBehaviour
     {
-        public GameMat gameMat;
+        public TexasHoldEmTestGameMat gameMat;
 
         public override void Interact(){
             gameMat.ClaimMat();
