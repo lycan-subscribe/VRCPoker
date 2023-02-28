@@ -19,6 +19,7 @@ namespace VRCPoker{
 		public Text foldText;
 		public Text callText;
 		public GameObject someoneElsesTurnIndicator;
+		public GameObject leaveButton;
 		
 		public Text debugBetAmt; // Debug - temporary
 
@@ -40,6 +41,11 @@ namespace VRCPoker{
 
 
 		//  UI Calls
+
+		// Leave btn
+		public void LeaveGame(){
+			gameState.LeaveGame(player);
+		}
 
 		// Called by the turn UI
 		public void Fold(){
@@ -94,46 +100,34 @@ namespace VRCPoker{
 
 		//  Deserialization from game state, player is already correct
 
-		public override void MyTurn(){
-			turnUI.SetActive(true);
-			joinButton.gameObject.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(false);
-			UpdateDebugUI();
-		}
-
-		public override void SomeoneElsesTurn(){
-			turnUI.SetActive(false);
-			joinButton.gameObject.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(true);
-		}
-
-		public override void WaitingForTurn(){
-			turnUI.SetActive(false);
-			joinButton.gameObject.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(false);
-		}
-
-		public override void Folded(){
-			turnUI.SetActive(false);
-			joinButton.gameObject.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(false);
-		}
-
-		public override void NoOwner(){ // Mid game
-			turnUI.SetActive(false);
-			joinButton.gameObject.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(false);
-		}
-
-		public override void WaitingForGame(){
-			turnUI.SetActive(false);
-			someoneElsesTurnIndicator.SetActive(false);
-
-			if( player == null ){
-				joinButton.gameObject.SetActive(true); // Join if you want
+		public override void GameStateChanged(bool gameInProgress, bool hasOwner, bool youOwnMat, bool thisMatsTurn, bool folded){
+			if( !gameInProgress && !hasOwner ){ // Join if you want
+				joinButton.gameObject.SetActive(true);
+			}
+			else{ // Already taken
+				joinButton.gameObject.SetActive(false);
+			}
+			
+			if( youOwnMat && thisMatsTurn ){ // Your turn
+				turnUI.SetActive(true);
+				UpdateDebugUI();
 			}
 			else{
-				joinButton.gameObject.SetActive(false); // Already taken
+				turnUI.SetActive(false);
+			}
+
+			if( !youOwnMat && thisMatsTurn ){ // Someone else's turn
+				someoneElsesTurnIndicator.SetActive(true);
+			}
+			else{
+				someoneElsesTurnIndicator.SetActive(false);
+			}
+
+			if( youOwnMat ){ // Able to leave
+				leaveButton.SetActive(true);
+			}
+			else{
+				leaveButton.SetActive(false);
 			}
 		}
 

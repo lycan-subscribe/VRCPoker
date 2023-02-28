@@ -11,11 +11,6 @@ namespace VRCPoker{
         public VRCPlayerApi player = null;
         public CardHand hand;
 
-        public abstract void MyTurn();
-		public abstract void SomeoneElsesTurn();
-		public abstract void WaitingForTurn();
-		public abstract void Folded();
-		public abstract void NoOwner(); // Mid game
-		public abstract void WaitingForGame();
+        public abstract void GameStateChanged(bool gameInProgress, bool hasOwner, bool youOwnMat, bool thisMatsTurn, bool folded);
     }
 }

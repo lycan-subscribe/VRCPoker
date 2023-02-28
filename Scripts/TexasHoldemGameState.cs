@@ -42,10 +42,12 @@ namespace VRCPoker{
 			Log("Initializing table...");
 
 			playerBet = new int[playerMats.Length];
+			OnDeserialization();
 		}
 
 		protected override void AfterDeserialization(){
 			dealerMat.debugPotAmt.text = pot.ToString();
+			PrintAllVariables(); // DEBUG
 		}
 
 
@@ -182,7 +184,29 @@ namespace VRCPoker{
 			return amt > GetMinimumBet();
 		}
 
-		
+
+		private void PrintAllVariables(){
+			string toLog = "[DEBUG] All game variables: \n"
+				+ "playerMatOwners playerInGame playerBet playerWon numPlayerChips\n";
+			for(int i=0; i<playerMats.Length; i++){
+				toLog += playerMatOwners[i] + " "
+					   + playerInGame[i] + " "
+					   + playerBet[i] + " " // errors?
+					   + playerWon[i] + " "
+					   + numPlayerChips[i] + "\n";
+			}
+
+			toLog += "gameInProgress: " + gameInProgress + "\n";
+			toLog += "currentPlayer: " + currentPlayer + "\n";
+			toLog += "drawNext: " + drawNext + "\n";
+			toLog += "roundNumber: " + roundNumber + "\n";
+			toLog += "currentBet: " + currentBet + "\n";
+			toLog += "lastPlayerToRaise: " + lastPlayerToRaise + "\n";
+			toLog += "pot: " + pot + "\n";
+
+			Log(toLog);
+
+		}
 	}
 
 }
