@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: StartButton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 5f15bb2c61224d74e9eae9a7ba2cd193,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 8e677a02a7017ec42a57b9082abbd773,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.DealerMat, Assembly-CSharp
+      Data: VRCPoker.DealerMat, VRCPoker
     - Name: 
       Entry: 8
       Data: 

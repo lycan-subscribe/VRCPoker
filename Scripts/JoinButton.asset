@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: JoinButton
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b09af93473495cb44a58660b665171e3,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7c116ee6e38f25944a3a9c10530c3557,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.GameMat, Assembly-CSharp
+      Data: VRCPoker.GameMat, VRCPoker
     - Name: 
       Entry: 8
       Data: 

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: BlackjackGameState
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 5bbd74d2eb6c68e46954f82b2bb9dffe,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 2649bc90e39bdfd4abfbad98ae85df38,
     type: 2}
   udonAssembly: 
   assemblyError: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.DealerMat, Assembly-CSharp
+      Data: VRCPoker.DealerMat, VRCPoker
     - Name: 
       Entry: 8
       Data: 
@@ -122,7 +122,7 @@ MonoBehaviour:
       Data: 7|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.GameMat[], Assembly-CSharp
+      Data: VRCPoker.GameMat[], VRCPoker
     - Name: 
       Entry: 8
       Data: 
@@ -428,7 +428,7 @@ MonoBehaviour:
       Data: 22|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.Logger, Assembly-CSharp
+      Data: VRCPoker.Logger, VRCPoker
     - Name: 
       Entry: 8
       Data: 
@@ -830,7 +830,7 @@ MonoBehaviour:
       Data: 47|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.Suit[], Assembly-CSharp
+      Data: VRCPoker.Suit[], VRCPoker
     - Name: 
       Entry: 8
       Data: 
@@ -890,7 +890,7 @@ MonoBehaviour:
       Data: 51|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.Rank[], Assembly-CSharp
+      Data: VRCPoker.Rank[], VRCPoker
     - Name: 
       Entry: 8
       Data: 
