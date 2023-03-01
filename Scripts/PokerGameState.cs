@@ -11,6 +11,13 @@ namespace VRCPoker{
     // Players are represented here by GameMats
     public abstract class PokerGameState : UdonSharpBehaviour
     {
+		#region Settings
+
+		public const int startingChips = 300;
+
+		#endregion
+
+
         #region Prefabs
 
 		public DealerMat dealerMat;
@@ -181,7 +188,9 @@ namespace VRCPoker{
 
 			if(!alreadyJoined && !gameInProgress){
 				// Claim the mat
-				playerMatOwners[ MatIndex(mat) ] = Networking.LocalPlayer.playerId;
+				int player = MatIndex(mat);
+				playerMatOwners[ player ] = Networking.LocalPlayer.playerId;
+				numPlayerChips[ player ] = startingChips;
 				SerializeAll();
 
 				return true;
@@ -210,7 +219,7 @@ namespace VRCPoker{
 							for(int j=0; j<playerMats.Length; j++){
 								if(playerInGame[j]){
 									playerWon[j] = true;
-									EndGame();
+									TriggerEndGame(); // Gives chips to the player
 									return;
 								}
 							}
@@ -224,13 +233,16 @@ namespace VRCPoker{
 			}
 		}
 
-        public void EndGame(){
+        public void TriggerEndGame(){
             gameInProgress = false;
+			EndGame();
 
 			SerializeAll();
 
             SendCustomNetworkEvent(NetworkEventTarget.All, "PlayersWon");
         }
+
+		protected abstract void EndGame();
 
         public void PlayersWon(){
             Log("[DEBUG] Game over");
@@ -243,7 +255,8 @@ namespace VRCPoker{
 				for(int i=0; i<playerMats.Length; i++){
 					if(playerInGame[i]){
 						playerWon[i] = true;
-						EndGame();
+						//Give chips to the player
+						TriggerEndGame();
 						return;
 					}
 				}
@@ -388,15 +401,15 @@ namespace VRCPoker{
 		}
 
 		protected int NumChips(int player){
-			return 10000000; //todo
+			return numPlayerChips[player];
 		}
 
 		protected void TakeChips(int player, int amt){
-			//todo
+			numPlayerChips[player] -= amt;
 		}
 
 		protected void GiveChips(int player, int amt){
-			//todo
+			numPlayerChips[player] += amt;
 		}
 
 		// Refresh game state, dealer mat, and all game mats for every player

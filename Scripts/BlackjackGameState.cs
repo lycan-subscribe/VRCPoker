@@ -19,6 +19,10 @@ namespace VRCPoker{
             return false;
         }
 
+        protected override void EndGame(){
+
+        }
+
         protected override void AfterDeserialization(){
 
         }

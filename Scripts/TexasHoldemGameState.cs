@@ -110,7 +110,6 @@ namespace VRCPoker{
 					if( playerInGame[i] ){
 						if(index == winnerIndices[winnerIndex]){
 							playerWon[i] = true;
-							GiveChips(i, pot / winnerIndices.Length);
 
 							winnerIndex++;
 							if(winnerIndex >= winnerIndices.Length) break;
@@ -120,8 +119,7 @@ namespace VRCPoker{
 					}
 				}
 
-				pot = 0;
-				EndGame();
+				TriggerEndGame();
 				return;
 			}
 
@@ -129,6 +127,21 @@ namespace VRCPoker{
 
 			// lastPlayerToRaise stays the same for now
 			// End the game if the round number is high enough?
+		}
+
+		protected override void EndGame(){
+			int numPlayersWhoWon = 0;
+			for(int i=0; i<playerMats.Length; i++){
+				if( playerWon[i] ) numPlayersWhoWon ++;
+			}
+
+			for(int i=0; i<playerMats.Length; i++){
+				if( playerWon[i] ){
+					GiveChips(i, pot / numPlayersWhoWon);
+				}
+			}
+
+			pot = 0;
 		}
 
 		// Is also called at the beginning of the game
