@@ -128,6 +128,11 @@ namespace VRCPoker{
 				if( StartGame() ){
                     SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
 					currentPlayer = -1;
+
+					for(int i=0; i<playerMats.Length; i++){
+						playerMats[i].ResetMat();
+					}
+
 					TriggerNextPlayer(); // Serializes
                     
                     return true;
@@ -204,6 +209,7 @@ namespace VRCPoker{
 							// Only one person left, so they win by default
 							for(int j=0; j<playerMats.Length; j++){
 								if(playerInGame[j]){
+									playerWon[j] = true;
 									EndGame();
 									return;
 								}
@@ -236,6 +242,7 @@ namespace VRCPoker{
 				// Only one person left, so they win by default
 				for(int i=0; i<playerMats.Length; i++){
 					if(playerInGame[i]){
+						playerWon[i] = true;
 						EndGame();
 						return;
 					}
@@ -270,7 +277,6 @@ namespace VRCPoker{
 			SerializeAll();
 		}
 		protected abstract void NextPlayer();
-		public abstract int GetMinimumBet();
 
 
 		/*

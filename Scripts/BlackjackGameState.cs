@@ -34,10 +34,6 @@ namespace VRCPoker{
         protected override void NextPlayer(){
 
         }
-
-        public override int GetMinimumBet(){
-            return 0;
-        }
     }
 
 }

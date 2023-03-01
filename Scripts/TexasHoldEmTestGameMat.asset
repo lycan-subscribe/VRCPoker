@@ -278,7 +278,7 @@ MonoBehaviour:
       Data: 15|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: VRCPoker.PokerGameState, VRCPoker
+      Data: VRCPoker.TexasHoldemGameState, VRCPoker
     - Name: 
       Entry: 8
       Data: 
