@@ -19,6 +19,10 @@ namespace VRCPoker{
             return false;
         }
 
+        protected override void EndGame(){
+
+        }
+
         protected override void AfterDeserialization(){
 
         }
@@ -33,10 +37,6 @@ namespace VRCPoker{
 
         protected override void NextPlayer(){
 
-        }
-
-        public override int GetMinimumBet(){
-            return 0;
         }
     }
 

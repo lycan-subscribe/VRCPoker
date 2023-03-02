@@ -104,23 +104,22 @@ namespace VRCPoker{
 
 				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands);
 				// Convert back to index of playerMats
-				/*int[] winners = new int[winnerIndices.Length];
 				index = 0;
+				int winnerIndex = 0;
 				for(int i=0; i<playerMats.Length; i++){
 					if( playerInGame[i] ){
-						if(winnerIndices == index){
-							winner = i;
+						if(index == winnerIndices[winnerIndex]){
+							playerWon[i] = true;
+
+							winnerIndex++;
+							if(winnerIndex >= winnerIndices.Length) break;
 						}
 
 						index++;
 					}
 				}
 
-				for(int i=0; i<winners.Length; i++){
-					GiveChips(winners[i], pot / winners.Length);
-				}*/
-				pot = 0;
-				EndGame();
+				TriggerEndGame();
 				return;
 			}
 
@@ -128,6 +127,21 @@ namespace VRCPoker{
 
 			// lastPlayerToRaise stays the same for now
 			// End the game if the round number is high enough?
+		}
+
+		protected override void EndGame(){
+			int numPlayersWhoWon = 0;
+			for(int i=0; i<playerMats.Length; i++){
+				if( playerWon[i] ) numPlayersWhoWon ++;
+			}
+
+			for(int i=0; i<playerMats.Length; i++){
+				if( playerWon[i] ){
+					GiveChips(i, pot / numPlayersWhoWon);
+				}
+			}
+
+			pot = 0;
 		}
 
 		// Is also called at the beginning of the game
@@ -172,7 +186,7 @@ namespace VRCPoker{
 			return true;
 		}
 
-		public override int GetMinimumBet(){ //For the current player
+		public int GetMinimumBet(){ //For the current player
 			return currentBet - playerBet[currentPlayer];
 		}
 

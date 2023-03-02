@@ -121,6 +121,24 @@ namespace Tests
             Assert.That(winningHands[0] == 1);
         }
 
+        [Test]
+        public void OnlyOnePlayer()
+        {
+            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[] { highNine });
+            Assert.That(winningHands.Length == 1);
+            Assert.That(winningHands[0] == 0);
+        }
+
+        [TearDown]
+        public void handsNotMutated()
+        {
+            Assert.AreEqual(common.cardRanks, new Rank[] { Rank.Seven, Rank.Six, Rank.Three, Rank.Queen, Rank.Two });
+            Assert.AreEqual(common.cardSuits, new Suit[] { Suit.Spades, Suit.Clubs, Suit.Diamonds, Suit.Clubs, Suit.Diamonds });
+
+            Assert.AreEqual(highNine.cardRanks, new Rank[] { Rank.Five, Rank.Nine });
+            Assert.AreEqual(highNine.cardSuits, new Suit[] { Suit.Clubs, Suit.Hearts });
+        }
+
         // Using Commmon2
 
         [Test]
@@ -196,24 +214,6 @@ namespace Tests
             Assert.That(winningHands.Length == 2);
             Assert.Contains(0, winningHands);
             Assert.Contains(2, winningHands);
-        }
-
-        [Test]
-        public void OnlyOnePlayer()
-        {
-            int[] winningHands = WinningHandSolver.GetWinningHands(common, new CardHand[] { highNine });
-            Assert.That(winningHands.Length == 1);
-            Assert.That(winningHands[0] == 0);
-        }
-
-        [TearDown]
-        public void handsNotMutated()
-        {
-            Assert.AreEqual(common.cardRanks, new Rank[] { Rank.Seven, Rank.Six, Rank.Three, Rank.Queen, Rank.Two });
-            Assert.AreEqual(common.cardSuits, new Suit[] { Suit.Spades, Suit.Clubs, Suit.Diamonds, Suit.Clubs, Suit.Diamonds });
-
-            Assert.AreEqual(highNine.cardRanks, new Rank[] { Rank.Five, Rank.Nine });
-            Assert.AreEqual(highNine.cardSuits, new Suit[] { Suit.Clubs, Suit.Hearts });
         }
     }
 

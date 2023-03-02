@@ -13,7 +13,7 @@ namespace VRCPoker{
 		public Color VALID_TEXT = Color.white;
 		public Color INVALID_TEXT = Color.grey;
 
-		public PokerGameState gameState;
+		public TexasHoldemGameState gameState;
 		public TestJoinButton joinButton;
 		public GameObject turnUI;
 		public Text foldText;
@@ -25,6 +25,10 @@ namespace VRCPoker{
 
 		int toBet = 0;
 
+
+		public override void ResetMat(){
+			toBet = 0;
+		}
 
 		// Called in the lobby before the game starts, when someone wants the mat
 		public void ClaimMat(){
