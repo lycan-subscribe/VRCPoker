@@ -62,7 +62,7 @@ namespace VRCPoker{
         // Diamonds Ace-King, Spades Ace-King, Clubs Ace-King, Hearts Ace-King
         // e.g. Ace of Diamonds is 0, Ace of Spades is 13
         private Mesh GetCardMesh(Suit s, Rank r){
-            int index = ((int)s * 13) + (int)r;
+            int index = (((int)s-1) * 13) + ((int)r-1);
 
             return cardMeshes[index];
         }
@@ -70,7 +70,7 @@ namespace VRCPoker{
 
 
     public enum Suit{
-        DNE = -1,
+        DNE,
         Diamonds,
         Spades,
         Clubs,
@@ -78,7 +78,7 @@ namespace VRCPoker{
     }
 
     public enum Rank{
-        DNE = -1,
+        DNE,
         Ace,
         Two,
         Three,
