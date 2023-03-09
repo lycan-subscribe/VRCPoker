@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: DealerMat
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: fe6962876389bfd4e999f84f6516f674,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 26a4ce9ef34e07040a1e7b76f017150c,
     type: 2}
   udonAssembly: 
   assemblyError: 

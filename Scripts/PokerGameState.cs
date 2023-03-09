@@ -76,8 +76,8 @@ namespace VRCPoker{
 			playerWon = new bool[playerMats.Length];
 
 			for(int i=0; i<deckRanks.Length; i++){
-				deckRanks[i] = (Rank) ( i % 13 );
-				deckSuits[i] = (Suit) ( i / 13 );
+				deckRanks[i] = (Rank) ( i % 13 + 1 );
+				deckSuits[i] = (Suit) ( i / 13 + 1 );
 			}
 		}
 
