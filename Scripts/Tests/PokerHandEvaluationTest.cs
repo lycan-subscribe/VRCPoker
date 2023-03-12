@@ -76,11 +76,11 @@ namespace Tests
 
             straightFlush = new GameObject().AddComponent<CardHand>();
             straightFlush.cardRanks = new Rank[] { Rank.Nine, Rank.Ten };
-            straightFlush.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
+            straightFlush.cardSuits = new Suit[] { Suit.Spades, Suit.Spades };
 
             royalFlush = new GameObject().AddComponent<CardHand>();
             royalFlush.cardRanks = new Rank[] { Rank.Ace, Rank.Ten };
-            royalFlush.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
+            royalFlush.cardSuits = new Suit[] { Suit.Spades, Suit.Spades };
         }
 
         // Using Common1

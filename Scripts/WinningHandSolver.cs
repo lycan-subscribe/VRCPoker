@@ -83,29 +83,56 @@ namespace VRCPoker {
                 }
 
 
-                // Check for straight + straight flush using a bitmask
+                // Check for straight + straight flush using an array
                 // https://stackoverflow.com/questions/32896845/check-for-poker-straight
 
-                int rank_bitmask = 0;
                 Rank straight_rank = Rank.DNE; // Highest card in straight
-                //int[] straight_indices = new int[5];
-                //bool straight_flush = false;
+                int[][] rank_indices = new int[14][]; // e.g. rank_indices[ (int) Rank.Two ] would be an array of indices i where ranks[i] == Rank.Two
+                for(int i=0; i<rank_indices.Length; i++) rank_indices[i] = new int[]{};
+                bool straight_flush = false;
 
                 for(int i=0; i<ranks.Length; i++){
-                    rank_bitmask |= (1 << (int)ranks[i]);
-                    if(ranks[i] == Rank.Ace) rank_bitmask |= 1;
+                    rank_indices[ (int)ranks[i] ] = Concat(rank_indices[i], new int[]{ i });
+
+                    if(ranks[i] == Rank.Ace){
+                        rank_indices[0] = Concat(rank_indices[i], new int[]{ i });
+                    }
                 }
 
-                for(int i=4; i<=13; i++){
-                    if( (rank_bitmask & (0x1F << (i-4))) == (0x1F << (i-4)) ){
-                        straight_rank = (Rank) i;
+                for(int i=4; i<rank_indices.Length; i++){
+                    if( rank_indices[i-4].Length > 0 && rank_indices[i-3].Length > 0 && rank_indices[i-2].Length > 0 && rank_indices[i-1].Length > 0 && rank_indices[i].Length > 0 ){
+                        // Test for flush
+                        bool[] flush_of_suit = new bool[] {false, true, true, true, true}; // 5 long because Suit.DNE is 0
+                        bool found_flush = false;
+                        for(int j=i-4; j<=i; j++){
+                            bool[] suit_of_rank = new bool[] {false, false, false, false, false};
+                            foreach( int rank_index in rank_indices[j] ){
+                                suit_of_rank[ (int)suits[rank_index] ] = true;
+                            }
+                            for(int k=1; k<suit_of_rank.Length; k++){
+                                flush_of_suit[k] = flush_of_suit[k] && suit_of_rank[k];
+                            }
+                        }
+                        // At this point, e.g. flush_of_suit[ (int)Suit.Spades ] is true iff there is one spade for each rank in the straight
+                        foreach(bool suit_flush in flush_of_suit){
+                            if( suit_flush ) found_flush = true;
+                        }
+                        
+                        if(found_flush){
+                            straight_rank = (Rank) i;
+                            straight_flush = true;
+                        }
+                        else if(!straight_flush){ // Don't replace the highest rank if the previous one was a flush and this one isn't
+                            straight_rank = (Rank) i;
+                        }
+
                     }
                 }
 
 
                 // Check for any flush
-
-                int[] suit_counts = new int[] {0, 0, 0, 0, 0};
+                
+                int[] suit_counts = new int[] {0, 0, 0, 0, 0}; // 5 long because Suit.DNE is 0
                 bool flush = false;
 
                 for(int i=0; i<suits.Length; i++){
@@ -123,7 +150,8 @@ namespace VRCPoker {
                 PrintArr(pairs);
                 PrintArr(three_of_a_kind);
                 PrintArr(four_of_a_kind);
-                Debug.Log("Highest straight: " + straight_rank + " (rank bitmask: " + rank_bitmask + ")");
+                Debug.Log("Highest straight: " + straight_rank);
+                Debug.Log("Found straight flush: " + straight_flush);
                 Debug.Log("Highest spare card: " + high_card);
                 PrintArr(suits);
                 PrintArr(suit_counts);
@@ -133,11 +161,11 @@ namespace VRCPoker {
 
                 HAND_TYPE current_type = HAND_TYPE.HIGH_CARD;
 
-                if(false){ // royal flush
-
+                if(straight_flush && straight_rank == Rank.Ace){ // royal flush
+                    current_type = HAND_TYPE.ROYAL_FLUSH;
                 }
-                else if(false){ // straight flush
-
+                else if(straight_flush){ // straight flush
+                    current_type = HAND_TYPE.STRAIGHT_FLUSH;
                 }
                 else if(four_of_a_kind[0] != Rank.DNE){
                     current_type = HAND_TYPE.FOUR_OF_A_KIND;
