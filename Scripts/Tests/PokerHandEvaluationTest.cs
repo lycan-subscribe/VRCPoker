@@ -39,8 +39,8 @@ namespace Tests
             highKing.cardSuits = new Suit[] { Suit.Clubs, Suit.Hearts };
 
             highKing2 = new GameObject().AddComponent<CardHand>();
-            highKing.cardRanks = new Rank[] { Rank.King, Rank.Eight };
-            highKing.cardSuits = new Suit[] { Suit.Spades, Suit.Diamonds };
+            highKing2.cardRanks = new Rank[] { Rank.King, Rank.Eight };
+            highKing2.cardSuits = new Suit[] { Suit.Spades, Suit.Diamonds };
 
             highJack = new GameObject().AddComponent<CardHand>();
             highJack.cardRanks = new Rank[] { Rank.Eight, Rank.Jack };

@@ -16,7 +16,7 @@ namespace VRCPoker {
             }
 
 
-            HAND_TYPE highest_type = HAND_TYPE.HIGH_CARD;
+            HAND_TYPE highest_type = HAND_TYPE.NONE;
             Rank highest_straight = Rank.DNE;
             Rank highest_foak = Rank.DNE;
             Rank highest_toak = Rank.DNE;
@@ -124,6 +124,7 @@ namespace VRCPoker {
                 PrintArr(three_of_a_kind);
                 PrintArr(four_of_a_kind);
                 Debug.Log("Highest straight: " + straight_rank + " (rank bitmask: " + rank_bitmask + ")");
+                Debug.Log("Highest spare card: " + high_card);
                 PrintArr(suits);
                 PrintArr(suit_counts);
 
@@ -161,6 +162,9 @@ namespace VRCPoker {
                 }
 
                 Debug.Log( current_type );
+                Debug.Log("");
+                Debug.Log("");
+                Debug.Log("");
 
 
                 // Compare with current winner
@@ -180,7 +184,7 @@ namespace VRCPoker {
 
                     if(current_type == HAND_TYPE.STRAIGHT || current_type == HAND_TYPE.STRAIGHT_FLUSH || current_type == HAND_TYPE.ROYAL_FLUSH){
                         if( straight_rank == highest_straight ){
-                            winners = Concat( winners, new int[] { player } ); // This crashes (please don't do it)
+                            winners = Concat( winners, new int[] { player } );
                         }
                         else if( straight_rank > highest_straight ){
                             highest_straight = straight_rank;
@@ -188,11 +192,11 @@ namespace VRCPoker {
                         }
                     }
                     else if(current_type == HAND_TYPE.FLUSH){
-                        winners = Concat( winners, new int[] { player } ); // This crashes (please don't do it)
+                        winners = Concat( winners, new int[] { player } );
                     }
                     else if(current_type == HAND_TYPE.HIGH_CARD){
                         if( high_card == highest_spare_card ){
-                            winners = Concat( winners, new int[] { player } ); // This crashes (please don't do it)
+                            winners = Concat( winners, new int[] { player } );
                         }
                         else if( high_card > highest_spare_card ){
                             highest_spare_card = high_card;
