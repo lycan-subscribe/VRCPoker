@@ -231,6 +231,33 @@ namespace VRCPoker {
                             winners = new int[]{ player };
                         }
                     }
+                    else if(current_type == HAND_TYPE.ONE_PAIR || current_type == HAND_TYPE.TWO_PAIR){
+                        if( pairs[0] == highest_pair ){
+                            winners = Concat( winners, new int[] { player } );
+                        }
+                        else if( pairs[0] > highest_pair ){
+                            highest_pair = pairs[0];
+                            winners = new int[]{ player };
+                        }
+                    }
+                    else if(current_type == HAND_TYPE.THREE_OF_A_KIND || current_type == HAND_TYPE.FULL_HOUSE){
+                        if( three_of_a_kind[0] == highest_toak ){
+                            winners = Concat( winners, new int[] { player } );
+                        }
+                        else if( three_of_a_kind[0] > highest_toak ){
+                            highest_toak = three_of_a_kind[0];
+                            winners = new int[]{ player };
+                        }
+                    }
+                    else if(current_type == HAND_TYPE.FOUR_OF_A_KIND){
+                        if( four_of_a_kind[0] == highest_foak ){
+                            winners = Concat( winners, new int[] { player } );
+                        }
+                        else if( four_of_a_kind[0] > highest_foak ){
+                            highest_foak = four_of_a_kind[0];
+                            winners = new int[]{ player };
+                        }
+                    }
                 }
                 
             }
