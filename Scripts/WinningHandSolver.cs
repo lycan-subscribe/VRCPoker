@@ -6,6 +6,12 @@ namespace VRCPoker {
         const bool ace_is_also_low = true;
 
         public static int[] GetWinningHands(CardHand commonCards, CardHand[] playerCards){
+            string winMessage = "";
+            return GetWinningHands(commonCards, playerCards, ref winMessage);
+        }
+
+        public static int[] GetWinningHands(CardHand commonCards, CardHand[] playerCards, ref string winMessage){
+            winMessage = "";
             
             if( playerCards.Length == 0 ){
                 //Something very bad has happened
@@ -206,6 +212,7 @@ namespace VRCPoker {
                     highest_foak = four_of_a_kind[0];
 
                     winners = new int[]{ player };
+                    winMessage = "won with " + current_type.GetName();
                 }
                 else if( current_type == highest_type ){ // Uh oh a tie
                     // SO MANY EDGE CASES
@@ -213,49 +220,60 @@ namespace VRCPoker {
                     if(current_type == HAND_TYPE.STRAIGHT || current_type == HAND_TYPE.STRAIGHT_FLUSH || current_type == HAND_TYPE.ROYAL_FLUSH){
                         if( straight_rank == highest_straight ){
                             winners = Concat( winners, new int[] { player } );
+                            winMessage = "tied with " + current_type.GetName() + " high " + straight_rank.GetName();
                         }
                         else if( straight_rank > highest_straight ){
                             highest_straight = straight_rank;
                             winners = new int[]{ player };
+                            winMessage = "won with " + current_type.GetName() + " high " + straight_rank.GetName();
                         }
                     }
                     else if(current_type == HAND_TYPE.FLUSH){
                         winners = Concat( winners, new int[] { player } );
+                        winMessage = "tied with " + current_type.GetName();
                     }
                     else if(current_type == HAND_TYPE.HIGH_CARD){
                         if( high_card == highest_spare_card ){
                             winners = Concat( winners, new int[] { player } );
+                            winMessage = "tied with a high " + high_card.GetName();
                         }
                         else if( high_card > highest_spare_card ){
                             highest_spare_card = high_card;
                             winners = new int[]{ player };
+                            winMessage = "won with a high " + high_card.GetName();
                         }
                     }
                     else if(current_type == HAND_TYPE.ONE_PAIR || current_type == HAND_TYPE.TWO_PAIR){
                         if( pairs[0] == highest_pair ){
                             winners = Concat( winners, new int[] { player } );
+                            winMessage = "tied with " + current_type.GetName() + " high " + pairs[0].GetName();
                         }
                         else if( pairs[0] > highest_pair ){
                             highest_pair = pairs[0];
                             winners = new int[]{ player };
+                            winMessage = "won with " + current_type.GetName() + " high " + pairs[0].GetName();
                         }
                     }
                     else if(current_type == HAND_TYPE.THREE_OF_A_KIND || current_type == HAND_TYPE.FULL_HOUSE){
                         if( three_of_a_kind[0] == highest_toak ){
                             winners = Concat( winners, new int[] { player } );
+                            winMessage = "tied with " + current_type.GetName() + " high " + three_of_a_kind[0].GetName();
                         }
                         else if( three_of_a_kind[0] > highest_toak ){
                             highest_toak = three_of_a_kind[0];
                             winners = new int[]{ player };
+                            winMessage = "won with " + current_type.GetName() + " high " + three_of_a_kind[0].GetName();
                         }
                     }
                     else if(current_type == HAND_TYPE.FOUR_OF_A_KIND){
                         if( four_of_a_kind[0] == highest_foak ){
                             winners = Concat( winners, new int[] { player } );
+                            winMessage = "tied with " + current_type.GetName() + " high " + four_of_a_kind[0].GetName();
                         }
                         else if( four_of_a_kind[0] > highest_foak ){
                             highest_foak = four_of_a_kind[0];
                             winners = new int[]{ player };
+                            winMessage = "won with " + current_type.GetName() + " high " + four_of_a_kind[0];
                         }
                     }
                 }
@@ -415,5 +433,25 @@ namespace VRCPoker {
         FOUR_OF_A_KIND, // If FOAK ties, use highest card
         STRAIGHT_FLUSH, // If straight flushes tie, split pot
         ROYAL_FLUSH
+    }
+
+    static class HAND_TYPEMethods{
+        public static string GetName(this HAND_TYPE t){
+            string[] hand_names = { // .ToString() completely breaks during udon runtime, no idea why
+                "nothing",
+                "a high card",
+                "a pair",
+                "two pairs",
+                "three of a kind",
+                "a straight",
+                "a flush",
+                "a full house",
+                "a four of a kind",
+                "a straight flush",
+                "a royal flush"
+            };
+
+            return hand_names[(int)t];
+        }
     }
 }

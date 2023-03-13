@@ -97,4 +97,39 @@ namespace VRCPoker{
         King,
         Ace
     }
+
+    public static class SuitMethods{
+        public static string GetName(this Suit s){
+            string[] suit_names = { // .ToString() completely breaks during udon runtime, no idea why
+                "DNE",
+                "diamonds",
+                "spades",
+                "clubs",
+                "hearts"
+            };
+            return suit_names[(int)s];
+        }
+    }
+
+    public static class RankMethods{
+        public static string GetName(this Rank r){
+            string[] rank_names = { // .ToString() completely breaks during udon runtime, no idea why
+                "DNE",
+                "two",
+                "three",
+                "four",
+                "five",
+                "six",
+                "seven",
+                "eight",
+                "nine",
+                "ten",
+                "jack",
+                "queen",
+                "king",
+                "ace"
+            };
+            return rank_names[(int)r];
+        }
+    }
 }

@@ -42,7 +42,7 @@ namespace VRCPoker{
 			Log("Initializing table...");
 
 			playerBet = new int[playerMats.Length];
-			OnDeserialization();
+			//OnDeserialization();
 		}
 
 		protected override void AfterDeserialization(){
@@ -102,7 +102,8 @@ namespace VRCPoker{
 					}
 				}
 
-				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands);
+				winMessage = "";
+				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands, ref winMessage);
 				// Convert back to index of playerMats
 				index = 0;
 				int winnerIndex = 0;

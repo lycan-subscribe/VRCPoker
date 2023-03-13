@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using System;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -53,6 +54,8 @@ namespace VRCPoker{
 		[UdonSynced]
 		public bool[] playerWon; // Size of playerMats, used after round ends
 		[UdonSynced]
+		public string winMessage; // used after round ends
+		[UdonSynced]
 		public int[] numPlayerChips;
 
 		// Deck Variables
@@ -106,6 +109,8 @@ namespace VRCPoker{
 				else{
 					mat.hand.onlyRenderFor = null; // Show cards at the end
 				}
+
+				mat.hand.OnDeserialization(); // Breaks if this is called in Start(), since it runs before the Start() in CardHand
 			}
 
 			if( CanStart() ){
@@ -135,10 +140,6 @@ namespace VRCPoker{
 				if( StartGame() ){
                     SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
 					currentPlayer = -1;
-
-					for(int i=0; i<playerMats.Length; i++){
-						playerMats[i].ResetMat();
-					}
 
 					TriggerNextPlayer(); // Serializes
                     
@@ -245,7 +246,20 @@ namespace VRCPoker{
 		protected abstract void EndGame();
 
         public void PlayersWon(){
-            Log("[DEBUG] Game over");
+
+			string gameOverString = "";
+			for(int i=0; i<playerMats.Length; i++){
+				if(playerWon[i]){
+					if( playerMats[i].player == null )
+						gameOverString += ", ?";
+					else
+						gameOverString += ", " + playerMats[i].player.displayName;
+				}
+			}
+			gameOverString = gameOverString.Remove(0, 2);
+			gameOverString += " " + winMessage;
+
+            Log("[DEBUG] " + gameOverString);
         }
 
 		// Is also called at the beginning of the game
@@ -302,7 +316,7 @@ namespace VRCPoker{
 
 			for (int i = deckRanks.Length-1; i > 0; i--) 
 			{
-				int j = (int) (Random.Range(0,0.9999f) * (i+1)); // Index to swap with, from 0 to i
+				int j = (int) (UnityEngine.Random.Range(0,0.9999f) * (i+1)); // Index to swap with, from 0 to i
 
 				Rank r = deckRanks[j];
 				Suit s = deckSuits[j];
