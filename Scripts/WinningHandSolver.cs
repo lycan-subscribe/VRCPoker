@@ -273,7 +273,7 @@ namespace VRCPoker {
                         else if( four_of_a_kind[0] > highest_foak ){
                             highest_foak = four_of_a_kind[0];
                             winners = new int[]{ player };
-                            winMessage = "won with " + current_type.GetName() + " high " + four_of_a_kind[0];
+                            winMessage = "won with " + current_type.GetName() + " high " + four_of_a_kind[0].GetName();
                         }
                     }
                 }
