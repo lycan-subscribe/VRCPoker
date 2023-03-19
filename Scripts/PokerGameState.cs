@@ -275,19 +275,23 @@ namespace VRCPoker{
 					}
 				}
 			}
+			// currentPlayer = 5, playerMats.Length = 6
+			currentPlayer++; // currentPlayer = 6
 
-			currentPlayer++;
-
-			// Find the next gameMat with a player
-			while( playerMats[currentPlayer].player == null
-				   || playerInGame[currentPlayer] == false ){
-
-				currentPlayer++;
-				if( currentPlayer >= playerMats.Length ) break;
-			}
-			
 			if( currentPlayer >= playerMats.Length ){
 				currentPlayer = 0;
+			}
+			else{
+				// Find the next gameMat with a player
+				while( playerMats[currentPlayer].player == null // index out of bounds
+					|| playerInGame[currentPlayer] == false ){
+
+					currentPlayer++;
+					if( currentPlayer >= playerMats.Length ){
+						currentPlayer = 0;
+						break;
+					}
+				}
 			}
 
 			// Find the next gameMat with a player again

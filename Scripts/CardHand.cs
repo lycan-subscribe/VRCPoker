@@ -40,20 +40,22 @@ namespace VRCPoker{
 
         public override void OnDeserialization(){
             
-            for(int i=0; i < cardObjects.Length; i++){
-                if( cardSuits[i] != Suit.DNE && i < Length ){
-                    // Render card
-                    cardObjects[i].gameObject.SetActive(true);
-                    
-                    if( onlyRenderFor == null || Networking.LocalPlayer == onlyRenderFor ){
-                        cardObjects[i].mesh = GetCardMesh( cardSuits[i], cardRanks[i] );
+            if( cardSuits.Length == cardObjects.Length && cardRanks.Length == cardObjects.Length ){ // Due to a funny hack sometimes OnDeserialization runs before Start (hehe)
+                for(int i=0; i < cardObjects.Length; i++){
+                    if( cardSuits[i] != Suit.DNE && i < Length ){
+                        // Render card
+                        cardObjects[i].gameObject.SetActive(true);
+                        
+                        if( onlyRenderFor == null || Networking.LocalPlayer == onlyRenderFor ){
+                            cardObjects[i].mesh = GetCardMesh( cardSuits[i], cardRanks[i] );
+                        }
+                        else{
+                            cardObjects[i].mesh = mysteryCard;
+                        }
                     }
                     else{
-                        cardObjects[i].mesh = mysteryCard;
+                        cardObjects[i].gameObject.SetActive(false);
                     }
-                }
-                else{
-                    cardObjects[i].gameObject.SetActive(false);
                 }
             }
         }

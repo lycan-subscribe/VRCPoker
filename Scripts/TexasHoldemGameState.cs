@@ -42,7 +42,7 @@ namespace VRCPoker{
 			Log("Initializing table...");
 
 			playerBet = new int[playerMats.Length];
-			//OnDeserialization();
+			OnDeserialization();
 		}
 
 		protected override void AfterDeserialization(){
@@ -52,7 +52,7 @@ namespace VRCPoker{
 
 
 		protected override bool StartGame(){
-			roundNumber = 0;
+			roundNumber = -1;
 			ShuffleDeck();
 
 			ClearHand(dealerMat.cards);
@@ -68,21 +68,29 @@ namespace VRCPoker{
 				playerWon[i] = false;
 			}
 
+			RoundFinished();
+
 			return true;
 		}
 
-		// Is also called at the beginning of the game
+		// Also runs at the beginning of the game with round 0
 		private void RoundFinished(){
 			roundNumber++;
 			currentBet = 0;
+			lastPlayerToRaise = -1;
 			for(int i=0; i<playerMats.Length; i++){
 				playerBet[i] = 0;
+
+				if( playerInGame[i] == true ){
+					if( lastPlayerToRaise == -1 )
+						lastPlayerToRaise = i; // set lastPlayerToRaise to the first player still in game
+				}
 			}
 
-			if( roundNumber == 1 ){
+			if( roundNumber == 1 ){ // Beginning of the game
 				currentBet = startingBet;
 			}
-			if( roundNumber == 2 ){
+			else if( roundNumber == 2 ){
 				DealCards(dealerMat.cards, 3);
 			}
 			else if( roundNumber == 3 ){
