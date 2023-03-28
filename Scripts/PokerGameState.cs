@@ -45,6 +45,7 @@ namespace VRCPoker{
 
         #region GameVariables
 
+		private bool gameWasInProgress = false; // Hack to make start/end game events work
         [UdonSynced]
 		public bool gameInProgress = false;
         [UdonSynced]
@@ -110,7 +111,7 @@ namespace VRCPoker{
 					mat.hand.onlyRenderFor = null; // Show cards at the end
 				}
 
-				mat.hand.OnDeserialization(); // Breaks if this is called in Start(), since it runs before the Start() in CardHand
+				mat.hand.OnDeserialization(); // Warning: sometimes runs before the Start() in CardHand
 			}
 
 			if( CanStart() ){
@@ -121,6 +122,16 @@ namespace VRCPoker{
 			}
 			else{
 				dealerMat.WaitingForPlayers();
+			}
+
+			// Events
+			if(gameInProgress && !gameWasInProgress){
+				SomeoneStartedGame();
+				gameWasInProgress = true;
+			}
+			else if(!gameInProgress && gameWasInProgress){
+				PlayersWon();
+				gameWasInProgress = false;
 			}
 
 			AfterDeserialization();
@@ -138,7 +149,6 @@ namespace VRCPoker{
 				gameInProgress = true;
 
 				if( StartGame() ){
-                    SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
 					currentPlayer = -1;
 
 					TriggerNextPlayer(); // Serializes
@@ -150,9 +160,6 @@ namespace VRCPoker{
 			return false;
         }
         protected abstract bool StartGame();
-        public void SomeoneStartedGame(){
-			Log("Starting game...");
-		}
 
         // Checked by DealerMat
 		public bool CanStart(){
@@ -239,28 +246,9 @@ namespace VRCPoker{
 			EndGame();
 
 			SerializeAll();
-
-            SendCustomNetworkEvent(NetworkEventTarget.All, "PlayersWon");
         }
 
 		protected abstract void EndGame();
-
-        public void PlayersWon(){
-
-			string gameOverString = "";
-			for(int i=0; i<playerMats.Length; i++){
-				if(playerWon[i]){
-					if( playerMats[i].player == null )
-						gameOverString += ", ?";
-					else
-						gameOverString += ", " + playerMats[i].player.displayName;
-				}
-			}
-			gameOverString = gameOverString.Remove(0, 2);
-			gameOverString += " " + winMessage;
-
-            Log("[DEBUG] " + gameOverString);
-        }
 
 		// Is also called at the beginning of the game
 		public void TriggerNextPlayer(){
@@ -308,6 +296,34 @@ namespace VRCPoker{
 			SerializeAll();
 		}
 		protected abstract void NextPlayer();
+
+
+		/*
+		 *  Events called on every client (after deserialize)
+		 */
+
+        public void SomeoneStartedGame(){
+			Log("Starting game...");
+		}
+
+		public void PlayersWon(){
+
+			string gameOverString = "";
+			for(int i=0; i<playerMats.Length; i++){
+				if(playerWon[i]){
+					playerMats[i].TextParticle(winMessage);
+
+					if( playerMats[i].player == null ) // Just in case
+						gameOverString += ", ?";
+					else
+						gameOverString += ", " + playerMats[i].player.displayName;
+				}
+			}
+			gameOverString = gameOverString.Remove(0, 2);
+			gameOverString += " " + winMessage;
+
+            Log("[DEBUG] " + gameOverString);
+        }
 
 
 		/*

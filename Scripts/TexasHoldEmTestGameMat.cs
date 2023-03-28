@@ -34,13 +34,21 @@ namespace VRCPoker{
 		public void ClaimMat(){
 
 			if( gameState.JoinGame(this) ){
-				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneClaimedMat");
+				//SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneClaimedMat");
 			}
 
 		}
 
+
+		// Events triggered on every client
+
 		public void SomeoneClaimedMat(){
+			Log("[DEBUG] SomeoneClaimedMat event");
 			Log(player.displayName + " joined the game.");
+		}
+
+		public override void TextParticle(string text){
+			Log(text); // Debug
 		}
 
 
