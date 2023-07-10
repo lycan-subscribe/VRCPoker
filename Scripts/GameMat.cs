@@ -13,5 +13,6 @@ namespace VRCPoker{
 
         public abstract void ResetMat();
         public abstract void GameStateChanged(bool gameInProgress, bool thisMatsTurn, bool folded);
+        public abstract void TextParticle(string text);
     }
 }

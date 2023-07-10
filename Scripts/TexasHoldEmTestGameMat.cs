@@ -34,13 +34,21 @@ namespace VRCPoker{
 		public void ClaimMat(){
 
 			if( gameState.JoinGame(this) ){
-				SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneClaimedMat");
+				//SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneClaimedMat");
 			}
 
 		}
 
+
+		// Events triggered on every client
+
 		public void SomeoneClaimedMat(){
+			Log("[DEBUG] SomeoneClaimedMat event");
 			Log(player.displayName + " joined the game.");
+		}
+
+		public override void TextParticle(string text){
+			Log(text); // Debug
 		}
 
 
@@ -114,6 +122,7 @@ namespace VRCPoker{
 			
 			if( player == Networking.LocalPlayer && thisMatsTurn ){ // Your turn
 				turnUI.SetActive(true);
+				toBet = 0; // Bad idea if OnDeserialize is called a lot
 				UpdateDebugUI();
 			}
 			else{
@@ -133,11 +142,20 @@ namespace VRCPoker{
 			else{
 				leaveButton.SetActive(false);
 			}
+
+			if( !gameInProgress && !folded ){ // End of game
+				hand.gameObject.transform.localEulerAngles = new Vector3(0,0,0);
+				hand.gameObject.transform.localPosition = new Vector3(0.26f, 0.01f, 0);
+			}
+			else{
+				hand.gameObject.transform.localEulerAngles = new Vector3(0,0,90);
+				hand.gameObject.transform.localPosition = new Vector3(0.26f, 0.1f, 0);
+			}
 		}
 
 
 		private void Log(string msg){
-			gameState.logger._Log("TexasHoldEmGameMat", msg);
+			gameState.logger._Log("TexasHoldEmTestGameMat", msg);
 		}
 
 		// Fix a glitch from 2022

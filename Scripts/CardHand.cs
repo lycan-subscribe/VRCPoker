@@ -40,20 +40,22 @@ namespace VRCPoker{
 
         public override void OnDeserialization(){
             
-            for(int i=0; i < cardObjects.Length; i++){
-                if( cardSuits[i] != Suit.DNE && i < Length ){
-                    // Render card
-                    cardObjects[i].gameObject.SetActive(true);
-                    
-                    if( onlyRenderFor == null || Networking.LocalPlayer == onlyRenderFor ){
-                        cardObjects[i].mesh = GetCardMesh( cardSuits[i], cardRanks[i] );
+            if( cardSuits.Length == cardObjects.Length && cardRanks.Length == cardObjects.Length ){ // Due to a funny hack sometimes OnDeserialization runs before Start (hehe)
+                for(int i=0; i < cardObjects.Length; i++){
+                    if( cardSuits[i] != Suit.DNE && i < Length ){
+                        // Render card
+                        cardObjects[i].gameObject.SetActive(true);
+                        
+                        if( onlyRenderFor == null || Networking.LocalPlayer == onlyRenderFor ){
+                            cardObjects[i].mesh = GetCardMesh( cardSuits[i], cardRanks[i] );
+                        }
+                        else{
+                            cardObjects[i].mesh = mysteryCard;
+                        }
                     }
                     else{
-                        cardObjects[i].mesh = mysteryCard;
+                        cardObjects[i].gameObject.SetActive(false);
                     }
-                }
-                else{
-                    cardObjects[i].gameObject.SetActive(false);
                 }
             }
         }
@@ -62,7 +64,11 @@ namespace VRCPoker{
         // Diamonds Ace-King, Spades Ace-King, Clubs Ace-King, Hearts Ace-King
         // e.g. Ace of Diamonds is 0, Ace of Spades is 13
         private Mesh GetCardMesh(Suit s, Rank r){
-            int index = ((int)s * 13) + (int)r;
+            int suit = (int) s - 1;
+            int rank = (int) r;
+            if( r == Rank.Ace ) rank = 0;
+
+            int index = (suit * 13) + rank;
 
             return cardMeshes[index];
         }
@@ -70,7 +76,7 @@ namespace VRCPoker{
 
 
     public enum Suit{
-        DNE = -1,
+        DNE,
         Diamonds,
         Spades,
         Clubs,
@@ -78,8 +84,7 @@ namespace VRCPoker{
     }
 
     public enum Rank{
-        DNE = -1,
-        Ace,
+        DNE,
         Two,
         Three,
         Four,
@@ -91,6 +96,42 @@ namespace VRCPoker{
         Ten,
         Jack,
         Queen,
-        King
+        King,
+        Ace
+    }
+
+    public static class SuitMethods{
+        public static string GetName(this Suit s){
+            string[] suit_names = { // .ToString() completely breaks during udon runtime, no idea why
+                "DNE",
+                "diamonds",
+                "spades",
+                "clubs",
+                "hearts"
+            };
+            return suit_names[(int)s];
+        }
+    }
+
+    public static class RankMethods{
+        public static string GetName(this Rank r){
+            string[] rank_names = { // .ToString() completely breaks during udon runtime, no idea why
+                "DNE",
+                "two",
+                "three",
+                "four",
+                "five",
+                "six",
+                "seven",
+                "eight",
+                "nine",
+                "ten",
+                "jack",
+                "queen",
+                "king",
+                "ace"
+            };
+            return rank_names[(int)r];
+        }
     }
 }

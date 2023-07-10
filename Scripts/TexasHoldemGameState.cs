@@ -24,6 +24,9 @@ namespace VRCPoker{
 
 		#region GameVariables
 		
+		private int previousPlayer = -1; // Hack to make call/check/raise events work
+		[UdonSynced]
+		public MOVE_TYPE lastMove = MOVE_TYPE.NONE; // Hack to make call/check/raise events work
 		[UdonSynced]
 		public int roundNumber = 0; // Every time a card is dealt to table basically
 		[UdonSynced]
@@ -47,12 +50,35 @@ namespace VRCPoker{
 
 		protected override void AfterDeserialization(){
 			dealerMat.debugPotAmt.text = pot.ToString();
+
+			// EVENTS
+			if(currentPlayer != previousPlayer){
+				if(lastMove == MOVE_TYPE.NONE){
+					// Start of game
+				}
+				else if(lastMove == MOVE_TYPE.RAISE){
+					playerMats[previousPlayer].TextParticle( "Raise to " + currentBet );
+				}
+				else if(lastMove == MOVE_TYPE.CHECK){
+					playerMats[previousPlayer].TextParticle( "Check" );
+				}
+				else if(lastMove == MOVE_TYPE.CALL){
+					playerMats[previousPlayer].TextParticle( "Call" );
+				}
+				else if(lastMove == MOVE_TYPE.FOLD){
+					playerMats[previousPlayer].TextParticle( "Fold" );
+				}
+
+				previousPlayer = currentPlayer;
+			}
+
 			PrintAllVariables(); // DEBUG
 		}
 
 
 		protected override bool StartGame(){
-			roundNumber = 0;
+			roundNumber = -1;
+			lastMove = MOVE_TYPE.NONE;
 			ShuffleDeck();
 
 			ClearHand(dealerMat.cards);
@@ -68,21 +94,29 @@ namespace VRCPoker{
 				playerWon[i] = false;
 			}
 
+			RoundFinished();
+
 			return true;
 		}
 
-		// Is also called at the beginning of the game
+		// Also runs at the beginning of the game with round 0
 		private void RoundFinished(){
 			roundNumber++;
 			currentBet = 0;
+			lastPlayerToRaise = -1;
 			for(int i=0; i<playerMats.Length; i++){
 				playerBet[i] = 0;
+
+				if( playerInGame[i] == true ){
+					if( lastPlayerToRaise == -1 )
+						lastPlayerToRaise = i; // set lastPlayerToRaise to the first player still in game
+				}
 			}
 
-			if( roundNumber == 1 ){
+			if( roundNumber == 1 ){ // Beginning of the game
 				currentBet = startingBet;
 			}
-			if( roundNumber == 2 ){
+			else if( roundNumber == 2 ){
 				DealCards(dealerMat.cards, 3);
 			}
 			else if( roundNumber == 3 ){
@@ -102,7 +136,8 @@ namespace VRCPoker{
 					}
 				}
 
-				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands);
+				winMessage = "";
+				int[] winnerIndices = WinningHandSolver.GetWinningHands(dealerMat.cards, playerHands, ref winMessage);
 				// Convert back to index of playerMats
 				index = 0;
 				int winnerIndex = 0;
@@ -148,6 +183,9 @@ namespace VRCPoker{
 		protected override void NextPlayer(){
 			// currentPlayer turn, guaranteed they are still in game
 
+			if( !playerInGame[lastPlayerToRaise] ){ // Happens if they left mid game
+				RoundFinished();
+			}
 			if( currentPlayer == lastPlayerToRaise ){
 				RoundFinished(); // Also if it goes around too many times? No infinite raising
 			}
@@ -157,6 +195,7 @@ namespace VRCPoker{
 			//Log("[DEBUG] folded");
 
 			playerInGame[currentPlayer] = false;
+			lastMove = MOVE_TYPE.FOLD;
 			TriggerNextPlayer();
 
 			return true;
@@ -175,6 +214,13 @@ namespace VRCPoker{
 			else if( playerBet[currentPlayer] + amount > currentBet ){ // Raise
 				lastPlayerToRaise = currentPlayer;
 				currentBet = playerBet[currentPlayer] + amount;
+				lastMove = MOVE_TYPE.RAISE;
+			}
+			else if( amount == 0 ){ // Check
+				lastMove = MOVE_TYPE.CHECK;
+			}
+			else{ // Call
+				lastMove = MOVE_TYPE.CALL;
 			}
 
 			TakeChips(currentPlayer, amount);
@@ -211,7 +257,9 @@ namespace VRCPoker{
 			}
 
 			toLog += "gameInProgress: " + gameInProgress + "\n";
+			toLog += "previousPlayer: " + previousPlayer + "\n";
 			toLog += "currentPlayer: " + currentPlayer + "\n";
+			toLog += "lastMove: " + lastMove + "\n";
 			toLog += "drawNext: " + drawNext + "\n";
 			toLog += "roundNumber: " + roundNumber + "\n";
 			toLog += "currentBet: " + currentBet + "\n";
@@ -221,6 +269,14 @@ namespace VRCPoker{
 			Log(toLog);
 
 		}
+	}
+
+	public enum MOVE_TYPE {
+		NONE,
+		FOLD,
+		CHECK,
+		CALL,
+		RAISE
 	}
 
 }

@@ -39,8 +39,8 @@ namespace Tests
             highKing.cardSuits = new Suit[] { Suit.Clubs, Suit.Hearts };
 
             highKing2 = new GameObject().AddComponent<CardHand>();
-            highKing.cardRanks = new Rank[] { Rank.King, Rank.Eight };
-            highKing.cardSuits = new Suit[] { Suit.Spades, Suit.Diamonds };
+            highKing2.cardRanks = new Rank[] { Rank.King, Rank.Eight };
+            highKing2.cardSuits = new Suit[] { Suit.Spades, Suit.Diamonds };
 
             highJack = new GameObject().AddComponent<CardHand>();
             highJack.cardRanks = new Rank[] { Rank.Eight, Rank.Jack };
@@ -76,11 +76,11 @@ namespace Tests
 
             straightFlush = new GameObject().AddComponent<CardHand>();
             straightFlush.cardRanks = new Rank[] { Rank.Nine, Rank.Ten };
-            straightFlush.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
+            straightFlush.cardSuits = new Suit[] { Suit.Spades, Suit.Spades };
 
             royalFlush = new GameObject().AddComponent<CardHand>();
             royalFlush.cardRanks = new Rank[] { Rank.Ace, Rank.Ten };
-            royalFlush.cardSuits = new Suit[] { Suit.Clubs, Suit.Clubs };
+            royalFlush.cardSuits = new Suit[] { Suit.Spades, Suit.Spades };
         }
 
         // Using Common1

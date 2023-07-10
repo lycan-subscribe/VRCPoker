@@ -1,4 +1,5 @@
-﻿using UdonSharp;
+﻿using System;
+using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
@@ -44,6 +45,7 @@ namespace VRCPoker{
 
         #region GameVariables
 
+		private bool gameWasInProgress = false; // Hack to make start/end game events work
         [UdonSynced]
 		public bool gameInProgress = false;
         [UdonSynced]
@@ -52,6 +54,8 @@ namespace VRCPoker{
 		public bool[] playerInGame; // Size of playerMats, who is playing & hasn't folded?
 		[UdonSynced]
 		public bool[] playerWon; // Size of playerMats, used after round ends
+		[UdonSynced]
+		public string winMessage; // used after round ends
 		[UdonSynced]
 		public int[] numPlayerChips;
 
@@ -76,8 +80,8 @@ namespace VRCPoker{
 			playerWon = new bool[playerMats.Length];
 
 			for(int i=0; i<deckRanks.Length; i++){
-				deckRanks[i] = (Rank) ( i % 13 );
-				deckSuits[i] = (Suit) ( i / 13 );
+				deckRanks[i] = (Rank) ( i % 13 + 1 );
+				deckSuits[i] = (Suit) ( i / 13 + 1 );
 			}
 		}
 
@@ -106,6 +110,8 @@ namespace VRCPoker{
 				else{
 					mat.hand.onlyRenderFor = null; // Show cards at the end
 				}
+
+				mat.hand.OnDeserialization(); // Warning: sometimes runs before the Start() in CardHand
 			}
 
 			if( CanStart() ){
@@ -116,6 +122,16 @@ namespace VRCPoker{
 			}
 			else{
 				dealerMat.WaitingForPlayers();
+			}
+
+			// Events
+			if(gameInProgress && !gameWasInProgress){
+				SomeoneStartedGame();
+				gameWasInProgress = true;
+			}
+			else if(!gameInProgress && gameWasInProgress){
+				PlayersWon();
+				gameWasInProgress = false;
 			}
 
 			AfterDeserialization();
@@ -133,12 +149,7 @@ namespace VRCPoker{
 				gameInProgress = true;
 
 				if( StartGame() ){
-                    SendCustomNetworkEvent(NetworkEventTarget.All, "SomeoneStartedGame");
 					currentPlayer = -1;
-
-					for(int i=0; i<playerMats.Length; i++){
-						playerMats[i].ResetMat();
-					}
 
 					TriggerNextPlayer(); // Serializes
                     
@@ -149,9 +160,6 @@ namespace VRCPoker{
 			return false;
         }
         protected abstract bool StartGame();
-        public void SomeoneStartedGame(){
-			Log("Starting game...");
-		}
 
         // Checked by DealerMat
 		public bool CanStart(){
@@ -238,15 +246,9 @@ namespace VRCPoker{
 			EndGame();
 
 			SerializeAll();
-
-            SendCustomNetworkEvent(NetworkEventTarget.All, "PlayersWon");
         }
 
 		protected abstract void EndGame();
-
-        public void PlayersWon(){
-            Log("[DEBUG] Game over");
-        }
 
 		// Is also called at the beginning of the game
 		public void TriggerNextPlayer(){
@@ -261,19 +263,23 @@ namespace VRCPoker{
 					}
 				}
 			}
+			// currentPlayer = 5, playerMats.Length = 6
+			currentPlayer++; // currentPlayer = 6
 
-			currentPlayer++;
-
-			// Find the next gameMat with a player
-			while( playerMats[currentPlayer].player == null
-				   || playerInGame[currentPlayer] == false ){
-
-				currentPlayer++;
-				if( currentPlayer >= playerMats.Length ) break;
-			}
-			
 			if( currentPlayer >= playerMats.Length ){
 				currentPlayer = 0;
+			}
+			else{
+				// Find the next gameMat with a player
+				while( playerMats[currentPlayer].player == null // index out of bounds
+					|| playerInGame[currentPlayer] == false ){
+
+					currentPlayer++;
+					if( currentPlayer >= playerMats.Length ){
+						currentPlayer = 0;
+						break;
+					}
+				}
 			}
 
 			// Find the next gameMat with a player again
@@ -293,6 +299,34 @@ namespace VRCPoker{
 
 
 		/*
+		 *  Events called on every client (after deserialize)
+		 */
+
+        public void SomeoneStartedGame(){
+			Log("Starting game...");
+		}
+
+		public void PlayersWon(){
+
+			string gameOverString = "";
+			for(int i=0; i<playerMats.Length; i++){
+				if(playerWon[i]){
+					playerMats[i].TextParticle(winMessage);
+
+					if( playerMats[i].player == null ) // Just in case
+						gameOverString += ", ?";
+					else
+						gameOverString += ", " + playerMats[i].player.displayName;
+				}
+			}
+			gameOverString = gameOverString.Remove(0, 2);
+			gameOverString += " " + winMessage;
+
+            Log("[DEBUG] " + gameOverString);
+        }
+
+
+		/*
 		 *  DECK
 		 */
 
@@ -302,7 +336,7 @@ namespace VRCPoker{
 
 			for (int i = deckRanks.Length-1; i > 0; i--) 
 			{
-				int j = (int) (Random.Range(0,0.9999f) * (i+1)); // Index to swap with, from 0 to i
+				int j = (int) (UnityEngine.Random.Range(0,0.9999f) * (i+1)); // Index to swap with, from 0 to i
 
 				Rank r = deckRanks[j];
 				Suit s = deckSuits[j];
